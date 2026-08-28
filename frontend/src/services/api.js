@@ -1,0 +1,158 @@
+import axios from 'axios';
+
+// Create Axios Instance
+const api = axios.create({
+  baseURL: '', // relative urls proxy to backend through vite proxy config
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
+// Request Interceptor: Attach JWT Bearer Token if available in localStorage
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('sih_auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response Interceptor: Route back to login on 401 Unauthorized
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('sih_auth_token');
+      localStorage.removeItem('sih_auth_user');
+      // If we are not already on the login page, redirect
+      if (!window.location.pathname.endsWith('/login')) {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// API Service Call wrappers
+export const authService = {
+  login: async (username, password) => {
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
+    
+    // Auth login takes Form encoded request
+    const response = await api.post('/api/auth/login', params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    
+    const { access_token } = response.data;
+    localStorage.setItem('sih_auth_token', access_token);
+    
+    // Fetch profile info immediately
+    const profileResponse = await api.get('/api/auth/me');
+    const user = profileResponse.data;
+    localStorage.setItem('sih_auth_user', JSON.stringify(user));
+    
+    return { token: access_token, user };
+  },
+  
+  register: async (username, email, password, role = 'Official') => {
+    const response = await api.post('/api/auth/register', { username, email, password, role });
+    return response.data;
+  },
+  
+  logout: () => {
+    localStorage.removeItem('sih_auth_token');
+    localStorage.removeItem('sih_auth_user');
+  },
+  
+  getCurrentUser: () => {
+    const user = localStorage.getItem('sih_auth_user');
+    return user ? JSON.parse(user) : null;
+  },
+  
+  getToken: () => {
+    return localStorage.getItem('sih_auth_token');
+  }
+};
+
+export const documentService = {
+  upload: async (file, language = 'Auto') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('language', language);
+    
+    const response = await api.post('/api/documents/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+  
+  list: async () => {
+    const response = await api.get('/api/documents');
+    return response.data;
+  },
+  
+  getDetails: async (id) => {
+    const response = await api.get(`/api/documents/${id}`);
+    return response.data;
+  }
+};
+
+export const recordService = {
+  search: async (filters = {}) => {
+    const response = await api.get('/api/records', { params: filters });
+    return response.data;
+  },
+  
+  getDetails: async (id) => {
+    const response = await api.get(`/api/records/${id}`);
+    return response.data;
+  },
+  
+  getExportCSVUrl: () => {
+    return '/api/records/export/csv';
+  },
+  
+  getExportPDFUrl: (id) => {
+    return `/api/records/export/pdf/${id}`;
+  }
+};
+
+export const verificationService = {
+  getPendingList: async () => {
+    const response = await api.get('/api/verification/list');
+    return response.data;
+  },
+  
+  verifyRecord: async (documentId, fields, approved = true) => {
+    const response = await api.put(`/api/verification/${documentId}/verify`, fields, {
+      params: { approved }
+    });
+    return response.data;
+  },
+  
+  getAudits: async (recordId) => {
+    const response = await api.get(`/api/verification/${recordId}/audits`);
+    return response.data;
+  }
+};
+
+export const dashboardService = {
+  getStats: async () => {
+    const response = await api.get('/api/dashboard/stats');
+    return response.data;
+  }
+};
+
+export default api;

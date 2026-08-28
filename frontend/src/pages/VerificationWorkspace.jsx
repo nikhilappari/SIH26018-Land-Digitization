@@ -1,0 +1,455 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  ChevronLeft, 
+  Check, 
+  X, 
+  AlertTriangle, 
+  HelpCircle,
+  Clock,
+  Layers,
+  Sparkles,
+  Info
+} from 'lucide-react';
+import { documentService, verificationService } from '../services/api';
+import StatusBadge from '../components/StatusBadge';
+
+const VerificationWorkspace = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  
+  // Image Viewer state
+  const [imageTab, setImageTab] = useState("preprocessed"); // original, preprocessed
+  
+  // Form edit states
+  const [formFields, setFormFields] = useState({
+    owner_name: "",
+    survey_number: "",
+    khasra_number: "",
+    khata_number: "",
+    plot_number: "",
+    area: "",
+    area_unit: "Acres",
+    village: "",
+    tehsil_mandal: "",
+    district: "",
+    land_classification: "",
+    ownership_type: "",
+    mutation_number: "",
+    registration_number: "",
+    registration_date: ""
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const details = await documentService.getDetails(id);
+        setData(details);
+        
+        // Pre-populate form fields
+        if (details.land_record) {
+          const rec = details.land_record;
+          setFormFields({
+            owner_name: rec.owner_name || "",
+            survey_number: rec.survey_number || "",
+            khasra_number: rec.khasra_number || "",
+            khata_number: rec.khata_number || "",
+            plot_number: rec.plot_number || "",
+            area: rec.area !== null ? rec.area.toString() : "",
+            area_unit: rec.area_unit || "Acres",
+            village: rec.village || "",
+            tehsil_mandal: rec.tehsil_mandal || "",
+            district: rec.district || "",
+            land_classification: rec.land_classification || "",
+            ownership_type: rec.ownership_type || "",
+            mutation_number: rec.mutation_number || "",
+            registration_number: rec.registration_number || "",
+            registration_date: rec.registration_date || ""
+          });
+        }
+      } catch (err) {
+        setError("Failed to retrieve document verification details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900"></div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="p-8 text-center text-red-600 bg-red-50 border border-red-200 rounded-xl max-w-xl mx-auto mt-12">
+        <p className="font-semibold">{error || "Verification item not found."}</p>
+      </div>
+    );
+  }
+
+  const { document, land_record, validation_results } = data;
+
+  const handleInputChange = (field, value) => {
+    setFormFields(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleVerificationDecision = async (approved = true) => {
+    try {
+      // Map form fields to correct payload (convert area to number)
+      const payload = {
+        ...formFields,
+        area: formFields.area ? parseFloat(formFields.area) : null
+      };
+
+      await verificationService.verifyRecord(document.id, payload, approved);
+      alert(approved ? "Record approved & updated in registry." : "Record marked as rejected.");
+      navigate('/verification');
+    } catch (err) {
+      alert("Failed to submit verification action: " + (err.response?.data?.detail || err.message));
+    }
+  };
+
+  // Helper to determine field classing based on confidence score & anomalies
+  const getFieldStyling = (fieldName) => {
+    const score = land_record?.confidence_scores?.[fieldName];
+    const isLowConfidence = score !== undefined && score < 70;
+    
+    // Check if there's an anomaly containing this field
+    const hasAnomaly = validation_results.some(v => 
+      !v.is_resolved && 
+      v.description.toLowerCase().includes(fieldName.replace('_', ' '))
+    );
+
+    if (hasAnomaly) {
+      return "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/10";
+    }
+    if (isLowConfidence) {
+      return "border-amber-300 focus:border-amber-500 focus:ring-amber-200 bg-amber-50/10";
+    }
+    return "border-slate-300 focus:border-amber-500 focus:ring-amber-200";
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header and Back nav */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/verification')}
+            className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-slate-800 transition-all border border-gray-200"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              Side-by-Side Human Verification
+              <StatusBadge status={document.status} />
+            </h1>
+            <p className="text-xs text-gray-500 font-semibold mt-1">
+              File: {document.original_filename} • Conf: {document.confidence_score}% • Lang: {document.language}
+            </p>
+          </div>
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleVerificationDecision(false)}
+            className="px-4 py-2 bg-white hover:bg-red-50 text-red-600 font-bold border border-red-200 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all"
+          >
+            <X size={14} />
+            Reject Record
+          </button>
+          <button
+            onClick={() => handleVerificationDecision(true)}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow transition-all border border-emerald-500"
+          >
+            <Check size={14} />
+            Approve & Publish Record
+          </button>
+        </div>
+      </div>
+
+      {/* Side-by-Side Review Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        
+        {/* Left Side: Document Viewer */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden h-[750px]">
+          <div className="bg-slate-50 border-b border-gray-200 p-4 flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase text-slate-600 tracking-wider">Document Viewer</h3>
+            <div className="flex bg-gray-200 p-1 rounded-md text-xs font-semibold">
+              <button
+                onClick={() => setImageTab("original")}
+                className={`px-3 py-1 rounded ${imageTab === 'original' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}
+              >
+                Original
+              </button>
+              <button
+                onClick={() => setImageTab("preprocessed")}
+                className={`px-3 py-1 rounded ${imageTab === 'preprocessed' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}
+              >
+                Preprocessed
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 bg-slate-100 flex items-center justify-center p-6 overflow-hidden">
+            <img
+              src={imageTab === 'original' ? document.file_path : (document.preprocessed_path || document.file_path)}
+              alt="Source Land Record"
+              className="max-h-full max-w-full object-contain shadow-md rounded border border-gray-300"
+            />
+          </div>
+        </div>
+
+        {/* Right Side: Staged Form Editor */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden h-[750px]">
+          <div className="bg-slate-50 border-b border-gray-200 p-4">
+            <h3 className="text-xs font-bold uppercase text-slate-600 tracking-wider">
+              Verify Staged Attributes
+            </h3>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            
+            {/* Active Validation Warnings alert card */}
+            {validation_results.filter(v => !v.is_resolved).length > 0 && (
+              <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl space-y-2">
+                <h4 className="text-xs font-bold text-rose-800 flex items-center gap-1.5 uppercase">
+                  <AlertTriangle size={14} />
+                  Logical Anomalies Flagged ({validation_results.filter(v => !v.is_resolved).length})
+                </h4>
+                <ul className="list-disc pl-5 text-[11px] text-rose-700 font-semibold space-y-1">
+                  {validation_results.filter(v => !v.is_resolved).map((vr) => (
+                    <li key={vr.id}>
+                      <span className="font-bold">{vr.rule_name}:</span> {vr.description}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Editing Form fields */}
+            <div className="space-y-4">
+              
+              {/* Primary Location Hierarchy Section */}
+              <div className="border border-gray-100 p-4 rounded-xl bg-slate-50/50 space-y-3">
+                <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wide mb-2">Location Information</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">District</label>
+                    <input
+                      type="text"
+                      value={formFields.district}
+                      onChange={(e) => handleInputChange("district", e.target.value)}
+                      className={`w-full px-3 py-1.5 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("district")}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Tehsil / Mandal</label>
+                    <input
+                      type="text"
+                      value={formFields.tehsil_mandal}
+                      onChange={(e) => handleInputChange("tehsil_mandal", e.target.value)}
+                      className={`w-full px-3 py-1.5 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("tehsil_mandal")}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Village</label>
+                    <input
+                      type="text"
+                      value={formFields.village}
+                      onChange={(e) => handleInputChange("village", e.target.value)}
+                      className={`w-full px-3 py-1.5 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("village")}`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* General Property details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Owner Name */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase">Pattadar / Owner Name</label>
+                    {land_record?.confidence_scores?.owner_name && (
+                      <span className={`text-[9px] font-bold ${
+                        land_record.confidence_scores.owner_name >= 70 ? "text-emerald-600" : "text-amber-500"
+                      }`}>
+                        AI Conf: {land_record.confidence_scores.owner_name}%
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={formFields.owner_name}
+                    onChange={(e) => handleInputChange("owner_name", e.target.value)}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("owner_name")}`}
+                  />
+                </div>
+
+                {/* Survey Number */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase">Survey Number</label>
+                    {land_record?.confidence_scores?.survey_number && (
+                      <span className="text-[9px] font-bold text-emerald-600">
+                        AI Conf: {land_record.confidence_scores.survey_number}%
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={formFields.survey_number}
+                    onChange={(e) => handleInputChange("survey_number", e.target.value)}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("survey_number")}`}
+                  />
+                </div>
+
+                {/* Khasra / Khata */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Khasra Number</label>
+                    <input
+                      type="text"
+                      value={formFields.khasra_number}
+                      onChange={(e) => handleInputChange("khasra_number", e.target.value)}
+                      className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("khasra_number")}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Khata Number</label>
+                    <input
+                      type="text"
+                      value={formFields.khata_number}
+                      onChange={(e) => handleInputChange("khata_number", e.target.value)}
+                      className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("khata_number")}`}
+                    />
+                  </div>
+                </div>
+
+                {/* Plot / Area */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-1">
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Plot Number</label>
+                    <input
+                      type="text"
+                      value={formFields.plot_number}
+                      onChange={(e) => handleInputChange("plot_number", e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold outline-none"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Area</label>
+                    <input
+                      type="text"
+                      value={formFields.area}
+                      onChange={(e) => handleInputChange("area", e.target.value)}
+                      className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("area")}`}
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Unit</label>
+                    <select
+                      value={formFields.area_unit}
+                      onChange={(e) => handleInputChange("area_unit", e.target.value)}
+                      className="w-full px-2 py-2 bg-white rounded-lg border border-slate-300 text-xs font-semibold outline-none"
+                    >
+                      <option value="Acres">Acres</option>
+                      <option value="Guntas">Guntas</option>
+                      <option value="Hectares">Hectares</option>
+                      <option value="Sq Yards">Sq Yards</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Land Classification & Ownership Type */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Land Classification</label>
+                  <input
+                    type="text"
+                    value={formFields.land_classification}
+                    onChange={(e) => handleInputChange("land_classification", e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold outline-none"
+                    placeholder="Dry, Wet, Agricultural, etc."
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Ownership Type</label>
+                  <input
+                    type="text"
+                    value={formFields.ownership_type}
+                    onChange={(e) => handleInputChange("ownership_type", e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold outline-none"
+                    placeholder="Pattadar, Joint, Tenant, etc."
+                  />
+                </div>
+
+                {/* Mutation & Registration Details */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Mutation Number</label>
+                  <input
+                    type="text"
+                    value={formFields.mutation_number}
+                    onChange={(e) => handleInputChange("mutation_number", e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold outline-none"
+                    placeholder="MUT/YYYY/XXXX"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Reg Number</label>
+                    <input
+                      type="text"
+                      value={formFields.registration_number}
+                      onChange={(e) => handleInputChange("registration_number", e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase">Reg Date</label>
+                    <input
+                      type="text"
+                      value={formFields.registration_date}
+                      onChange={(e) => handleInputChange("registration_date", e.target.value)}
+                      className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold outline-none ${getFieldStyling("registration_date")}`}
+                      placeholder="DD-MM-YYYY"
+                    />
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Help guidelines */}
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex gap-3 text-xs leading-normal">
+              <Info size={16} className="text-slate-500 shrink-0 mt-0.5" />
+              <div className="text-slate-600 font-semibold">
+                <p className="font-bold text-slate-800">Review Guideline:</p>
+                <p className="mt-1">
+                  Correct any errors highlighted in red or yellow by typing the actual text shown in the document. 
+                  Accepting the record will overwrite the staging data, clear validation flags, and set status to Verified.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default VerificationWorkspace;
