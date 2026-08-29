@@ -25,9 +25,9 @@ const Upload = () => {
   const stepsList = [
     { label: "Document Uploaded", desc: "Original scanned file saved securely" },
     { label: "Image Preprocessing", desc: "OpenCV deskewing, noise reduction, and binarization" },
+    { label: "OCR & Character Mapping", desc: "Extracting text, word tokens, and bounding boxes" },
     { label: "Document Classification", desc: "Detecting document type, language, and script format" },
-    { label: "OCR & Handwriting Recognition", desc: "Running character-mapping engine (English/Telugu)" },
-    { label: "NLP Entity Extraction", desc: "Parsing fields: Owner Name, Survey, Khasra, Area" },
+    { label: "Multilingual Field Extraction", desc: "Parsing fields: Owner, Survey No, Extent, Mandal, Village" },
     { label: "Validation Engine Check", desc: "Checking area consistency, duplicates, and conflicts" }
   ];
 
@@ -60,9 +60,9 @@ const Upload = () => {
           setPipelineStep(0);
         } else if (stage === "PREPROCESSING") {
           setPipelineStep(1);
-        } else if (stage === "CLASSIFYING") {
-          setPipelineStep(2);
         } else if (stage === "OCR_PROCESSING") {
+          setPipelineStep(2);
+        } else if (stage === "CLASSIFYING") {
           setPipelineStep(3);
         } else if (stage === "EXTRACTING") {
           setPipelineStep(4);

@@ -1,4 +1,4 @@
-﻿import os
+import os
 import logging
 from sqlalchemy.orm import Session
 from app.database.session import SessionLocal
@@ -74,13 +74,21 @@ def run_document_digitization_pipeline(document_id: int):
         doc.processing_stage = "CLASSIFYING"
         db.commit()
 
-        detected_lang = detect_language(raw_ocr_text)
-        detected_doc_type = classify_document_type(raw_ocr_text, doc.original_filename)
+        classification = classify_document_type(raw_ocr_text, doc.original_filename)
+        if isinstance(classification, dict):
+            detected_lang = classification.get("language") or detect_language(raw_ocr_text)
+            doc_type_str = classification.get("doc_type", "Other")
+            format_type_str = classification.get("format_type", "Printed")
+        else:
+            detected_lang = detect_language(raw_ocr_text)
+            doc_type_str = str(classification)
+            format_type_str = "Printed"
 
         doc.language = detected_lang
-        doc.doc_type = detected_doc_type
+        doc.doc_type = doc_type_str
+        doc.format_type = format_type_str
         db.commit()
-        logger.info(f"Stage 3 Completed: Detected Language='{detected_lang}', Doc Type='{detected_doc_type}'")
+        logger.info(f"Stage 3 Completed: Detected Language='{detected_lang}', Doc Type='{doc_type_str}', Format='{format_type_str}'")
 
         # -------------------------------------------------------------
         # Stage 4: MULTILINGUAL FIELD EXTRACTION & NORMALIZATION
