@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+﻿from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional, Dict, Any
 
@@ -30,12 +30,15 @@ class LandRecordUpdate(LandRecordBase):
     verification_status: Optional[str] = None
 
 class LandRecordResponse(LandRecordBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
-    document_id: Optional[int]
+    document_id: Optional[int] = None
     confidence_scores: Optional[Dict[str, Any]] = None
     verification_status: str
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+class LandRecordDetailResponse(BaseModel):
+    record: LandRecordResponse
+    document: Optional[Any] = None

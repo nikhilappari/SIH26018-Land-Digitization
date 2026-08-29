@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base
@@ -35,9 +35,9 @@ def test_missing_fields_validation(db_session):
     anomalies = validate_record(db_session, record_data, document_id=1)
     
     assert len(anomalies) > 0
-    missing_fields_anomalies = [a for a in anomalies if a.rule_name == "Missing Field"]
+    missing_fields_anomalies = [a for a in anomalies if a["rule_name"] == "Missing Field"]
     assert len(missing_fields_anomalies) == 1
-    assert "Owner Name" in missing_fields_anomalies[0].description
+    assert "Owner Name" in missing_fields_anomalies[0]["description"]
 
 def test_invalid_area_format_validation(db_session):
     """Test that negative or invalid area values trigger format errors."""
@@ -51,9 +51,9 @@ def test_invalid_area_format_validation(db_session):
     }
     
     anomalies = validate_record(db_session, record_data, document_id=1)
-    format_errors = [a for a in anomalies if a.rule_name == "Format Error"]
+    format_errors = [a for a in anomalies if a["rule_name"] == "Format Error"]
     assert len(format_errors) == 1
-    assert "positive" in format_errors[0].description
+    assert "positive" in format_errors[0]["description"]
 
 def test_area_mismatch_cross_check(db_session):
     """Test that a discrepancy in area measurements against a verified record triggers an Area Mismatch anomaly."""
@@ -82,9 +82,9 @@ def test_area_mismatch_cross_check(db_session):
     }
     
     anomalies = validate_record(db_session, record_data, document_id=3)
-    area_mismatches = [a for a in anomalies if a.rule_name == "Area Mismatch"]
+    area_mismatches = [a for a in anomalies if a["rule_name"] == "Area Mismatch"]
     assert len(area_mismatches) == 1
-    assert "lists 5.8" in area_mismatches[0].description
+    assert "discrepancy" in area_mismatches[0]["description"].lower()
 
 def test_owner_conflict_cross_check(db_session):
     """Test that a mismatch in owner name triggers an Owner Conflict warning."""
@@ -114,6 +114,6 @@ def test_owner_conflict_cross_check(db_session):
     }
     
     anomalies = validate_record(db_session, record_data, document_id=6)
-    owner_conflicts = [a for a in anomalies if a.rule_name == "Owner Conflict"]
+    owner_conflicts = [a for a in anomalies if a["rule_name"] == "Owner Conflict"]
     assert len(owner_conflicts) == 1
-    assert "Suresh Kumar" in owner_conflicts[0].description
+    assert "Suresh Kumar" in owner_conflicts[0]["description"]

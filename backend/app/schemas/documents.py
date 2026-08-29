@@ -1,8 +1,12 @@
-from pydantic import BaseModel
+﻿from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
+from app.schemas.land_records import LandRecordResponse
+from app.schemas.validation import ValidationResultResponse
 
 class DocumentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     original_filename: str
     file_path: str
@@ -16,12 +20,14 @@ class DocumentResponse(BaseModel):
     ocr_text: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 class DocumentUpdate(BaseModel):
     doc_type: Optional[str] = None
     language: Optional[str] = None
     format_type: Optional[str] = None
     status: Optional[str] = None
     confidence_score: Optional[float] = None
+
+class DocumentDetailResponse(BaseModel):
+    document: DocumentResponse
+    land_record: Optional[LandRecordResponse] = None
+    validation_results: List[ValidationResultResponse] = []

@@ -1,11 +1,22 @@
-FROM python:3.11-slim
+﻿FROM python:3.11-slim
 
-# Install system dependencies for psycopg2, opencv, and tesseract
+# Install system dependencies for PostgreSQL, OpenCV, PDF handling, and full Multilingual Indic OCR
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     tesseract-ocr \
+    tesseract-ocr-eng \
     tesseract-ocr-tel \
+    tesseract-ocr-hin \
+    tesseract-ocr-tam \
+    tesseract-ocr-kan \
+    tesseract-ocr-mal \
+    tesseract-ocr-mar \
+    tesseract-ocr-ben \
+    tesseract-ocr-guj \
+    tesseract-ocr-ori \
+    tesseract-ocr-pan \
+    poppler-utils \
     libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*

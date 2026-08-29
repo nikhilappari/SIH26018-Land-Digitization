@@ -1,23 +1,22 @@
+﻿import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
 
-from app.config import settings
-from app.database import init_db
-from app.routes import auth, documents, records, verification, dashboard
+from app.core.config import settings
+from app.database.session import init_db
+from app.api import api_router
 
-# Initialize tables
+# Initialize database schema tables
 init_db()
 
 app = FastAPI(
-    title="Intelligent Land Record Digitization and Validation System API",
-    description="SIH Land Record Digitization Backend Services",
-    version="1.0.0"
+    title="BhoomiSetu AI - Land Record Digitization & Validation API",
+    description="SIH26018 Production-Ready Multilingual Land Records Digitization Backend Services",
+    version="2.0.0"
 )
 
 # CORS Configuration
-# React frontend is served on port 3000 (Dockerized) or 5173 (local Vite development)
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
@@ -33,25 +32,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ensure absolute paths exist for mounting
+# Mount Static Files for serving original and preprocessed images securely
 uploads_abs_path = os.path.abspath(settings.UPLOAD_DIR)
 preprocessed_abs_path = os.path.abspath(settings.PREPROCESSED_DIR)
 
-# Mount Static Files for serving original and preprocessed images
 app.mount("/static/uploads", StaticFiles(directory=uploads_abs_path), name="uploads")
 app.mount("/static/preprocessed", StaticFiles(directory=preprocessed_abs_path), name="preprocessed")
 
-# Register API Routers
-app.include_router(auth.router, prefix="/api")
-app.include_router(documents.router, prefix="/api")
-app.include_router(records.router, prefix="/api")
-app.include_router(verification.router, prefix="/api")
-app.include_router(dashboard.router, prefix="/api")
+# Register API Router
+app.include_router(api_router, prefix="/api")
 
 @app.get("/")
 def read_root():
     return {
         "status": "Healthy",
-        "service": "Intelligent Land Record Digitization and Validation System",
-        "api_documentation": "/docs"
+        "service": "BhoomiSetu AI Land Record Digitization API",
+        "version": "2.0.0",
+        "docs": "/docs"
     }
