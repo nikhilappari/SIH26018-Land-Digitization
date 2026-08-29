@@ -1,4 +1,4 @@
-﻿import os
+import os
 import shutil
 import uuid
 from typing import List
@@ -65,6 +65,52 @@ def get_documents(
     current_user = Depends(get_current_active_user)
 ):
     return db.query(Document).order_by(Document.created_at.desc()).offset(skip).limit(limit).all()
+
+@router.get("/{document_id}/extraction-debug")
+def get_extraction_debug(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user)
+):
+    doc = db.query(Document).filter(Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    land_record = db.query(LandRecord).filter(LandRecord.document_id == document_id).first()
+    validations = db.query(ValidationResult).filter(ValidationResult.document_id == document_id).all()
+
+    return {
+        "document_id": doc.id,
+        "filename": doc.original_filename,
+        "raw_ocr": doc.ocr_text,
+        "language": doc.language,
+        "doc_type": doc.doc_type,
+        "processing_stage": doc.processing_stage,
+        "overall_confidence": doc.confidence_score,
+        "fields": land_record.regional_values if land_record else None,
+        "staging_record": {
+            "owner_name": land_record.owner_name if land_record else None,
+            "survey_number": land_record.survey_number if land_record else None,
+            "khata_number": land_record.khata_number if land_record else None,
+            "khasra_number": land_record.khasra_number if land_record else None,
+            "area": land_record.area if land_record else None,
+            "area_unit": land_record.area_unit if land_record else None,
+            "village": land_record.village if land_record else None,
+            "tehsil_mandal": land_record.tehsil_mandal if land_record else None,
+            "district": land_record.district if land_record else None,
+            "registration_number": land_record.registration_number if land_record else None,
+            "registration_date": land_record.registration_date if land_record else None
+        } if land_record else None,
+        "validation": [
+            {
+                "rule_name": v.rule_name,
+                "severity": v.severity,
+                "description": v.description,
+                "is_resolved": v.is_resolved
+            }
+            for v in validations
+        ]
+    }
 
 @router.get("/{document_id}", response_model=DocumentDetailResponse)
 def get_document_details(

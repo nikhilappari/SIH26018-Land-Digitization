@@ -1,9 +1,10 @@
-﻿import os
+import os
 import cv2
 import numpy as np
 from PIL import Image
 import time
 import logging
+from typing import Optional, Any
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ def denoise_photocopy(gray: np.ndarray) -> np.ndarray:
             cleaned_inv[labels == i] = 0
     return cv2.bitwise_not(cleaned_inv)
 
-def preprocess_image(input_path: str, output_path: str) -> dict:
+def preprocess_image(input_path: str, output_path: Optional[str] = None) -> Any:
     """
     Full image preprocessing pipeline:
     1. Skew detection and rotation
@@ -66,6 +67,11 @@ def preprocess_image(input_path: str, output_path: str) -> dict:
     5. High-quality Otsu binarization
     """
     start_time = time.time()
+    
+    if output_path is None:
+        os.makedirs("preprocessed", exist_ok=True)
+        base_name = os.path.basename(input_path)
+        output_path = os.path.join("preprocessed", f"clean_{base_name}")
     
     # Handle PDF input
     _, ext = os.path.splitext(input_path.lower())

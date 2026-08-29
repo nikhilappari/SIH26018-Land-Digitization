@@ -1,133 +1,195 @@
-﻿import re
+﻿from typing import Dict, List
 
-REVENUE_TERM_TRANSLATIONS = {
-    # Telugu terms
-    "ఆంధ్రప్రదేశ్ ప్రభుత్వం": "Government of Andhra Pradesh",
-    "భూ రెవెన్యూ విభాగం": "Land Revenue Department",
-    "గ్రామ ఖాతా నంబరు": "Village Account Number",
-    "అడంగల్ / పహానీ": "Adangal / Pahani",
-    "అడంగల్": "Adangal",
-    "పహానీ": "Pahani",
-    "గ్రామం": "Village",
-    "గ్రామము": "Village",
-    "మండలం": "Mandal",
-    "మండలము": "Mandal",
-    "జిల్లా": "District",
-    "ఖాతా సంఖ్య": "Khata Number",
-    "ఖాతా నంబరు": "Khata Number",
-    "ఖాతా నం": "Khata Number",
-    "పట్టాదారు పేరు": "Owner Name",
-    "యజమాని పేరు": "Owner Name",
-    "తండ్రి పేరు": "Father Name",
-    "సర్వే నంబరు": "Survey Number",
-    "సర్వే నం": "Survey Number",
-    "ఖస్రా నంబరు": "Khasra Number",
-    "ప్లాట్ నంబరు": "Plot Number",
-    "విస్తీర్ణం": "Area",
-    "ఎకరాలు": "Acres",
-    "గుంటలు": "Guntas",
-    "భూమి వర్గీకరణ": "Land Classification",
-    "భూమి రకం": "Land Classification",
-    "మెట్ట": "Dry - Agricultural",
-    "మెట్ట భూమి": "Dry - Agricultural",
-    "మాగాణి": "Wet - Agricultural",
-    "రిజిస్ట్రేషన్ సంఖ్య": "Registration Number",
-    "రిజిస్ట్రేషన్ నంబరు": "Registration Number",
-    "రిజిస్ట్రేషన్ తేదీ": "Registration Date",
-    "పట్టా రకం": "Ownership Type",
-    "పట్టాదారు": "Pattadar",
-    "కొండ్రు రాము": "Kondru Ramu",
-    "కొండ్రు సత్యం": "Kondru Satyam",
-    "కొండ్రు సురేష్": "Kondru Suresh",
-    "కృష్ణారావు ముడపల్లి": "Krishnarao Mudapalli",
-    "కృష్ణపురం": "Krishnapuram",
-    "పెద్దవెంకటాపురం": "Pedavenkatapuram",
-    "పెదపాడు": "Pedapadu",
-    "రాజమండ్రి గ్రామీణ": "Rajahmundry Rural",
-    "రాజమండ్రి": "Rajahmundry",
-    "పశ్చిమ గోదావరి": "West Godavari",
-    "తూర్పుగోదావరి": "East Godavari",
+# Comprehensive canonical aliases across all 11 Indian official languages
+CANONICAL_FIELD_ALIASES: Dict[str, List[str]] = {
+    "owner_name": [
+        "owner name", "pattadar name", "name of pattadar", "landowner", "owner", "holder name", "pattadar",
+        # Telugu
+        "పట్టాదారు పేరు", "పట్టాదారు", "భూ యజమాని", "యజమాని పేరు", "ఖాతాదారు పేరు", "రైతు పేరు", "భూమిదారు",
+        # Hindi / Marathi
+        "खातेदार का नाम", "पट्टेदार का नाम", "भूस्वामी का नाम", "मालिक का नाम", "किसान का नाम", "खातेदाराचे नाव", "जमीन मालकाचे नाव",
+        # Tamil
+        "உரிமையாளர் பெயர்", "பட்டாதாரர் பெயர்", "நில உரிமையாளர்", "பட்டாதார் பெயர்",
+        # Kannada
+        "ಖಾತೆದಾರರ ಹೆಸರು", "ಪಟ್ಟಾದಾರರ ಹೆಸರು", "ಭೂಮಾಲೀಕರ ಹೆಸರು", "ಮಾಲೀಕರ ಹೆಸರು", "ರೈತರ ಹೆಸರು",
+        # Malayalam
+        "ഭൂവുടമയുടെ പേര്", "പട്ടാദാരുടെ പേര്", "ഉടമസ്ഥന്റെ പേര്",
+        # Bengali
+        "জমির মালিকের নাম", "পত্তাদার নাম", "মালিকের নাম", "রায়তের নাম",
+        # Gujarati
+        "ખાતેદારનું નામ", "જમીન માલિકનું નામ", "પટ્ટાદારનું નામ",
+        # Odia
+        "ଜମି ମାଲିକଙ୍କ ନାମ", "ପଟ୍ଟାଦାରଙ୍କ ନାମ", "ରୟତଙ୍କ ନାମ",
+        # Punjabi
+        "ਮਾਲਕ ਦਾ ਨਾਮ", "ਪੱਟੇਦਾਰ ਦਾ ਨਾਮ", "ਜ਼ਮੀਨ ਮਾਲਕ ਦਾ ਨਾਮ"
+    ],
+    
+    "father_name": [
+        "father name", "father's name", "husband name", "husband's name", "parent name",
+        "తండ్రి పేరు", "భర్త పేరు", "తండ్రి/భర్త పేరు",
+        "पिता का नाम", "पति का नाम", "पिता/पति का नाम", "वडिलांचे नाव", "पतीचे नाव",
+        "தந்தை பெயர்", "கணவர் பெயர்",
+        "ತಂದೆಯ ಹೆಸರು", "ಗಂಡನ ಹೆಸರು",
+        "പിതാവിന്റെ പേര്", "ഭർത്താവിന്റെ പേര്",
+        "পিতার নাম", "স্বামীর নাম",
+        "પિતાનું નામ", "પતિનું નામ",
+        "ପିତାଙ୍କ ନାମ", "ସ୍ୱାମୀଙ୍କ ନାମ",
+        "ਪਿਤਾ ਦਾ ਨਾਮ", "ਪਤੀ ਦਾ ਨਾਮ"
+    ],
 
-    # Hindi / Devanagari terms
-    "उत्तर प्रदेश सरकार": "Government of Uttar Pradesh",
-    "भू-राजस्व विभाग": "Land Revenue Department",
-    "ग्राम": "Village",
-    "गांव": "Village",
-    "तहसील": "Tehsil/Mandal",
-    "जनपद": "District",
-    "जिला": "District",
-    "खाता खतौनी": "Khata Khatauni",
-    "अधिकार अभिलेख": "Record of Rights",
-    "खाता संख्या": "Khata Number",
-    "खसरा संख्या": "Khasra Number",
-    "खातेदार का नाम": "Owner Name",
-    "पिता का नाम": "Father Name",
-    "क्षेत्रफल": "Area",
-    "एकड़": "Acres",
-    "हेक्टेयर": "Hectares",
-    "भूमि वर्गीकरण": "Land Classification",
-    "कृषि भूमि": "Agricultural Land",
-    "पंजीकरण संख्या": "Registration Number",
-    "पंजीकरण दिनांक": "Registration Date",
-    "पंजीकरण तिथि": "Registration Date",
-    "नामांतरण": "Mutation",
-    "दाखिल खारिज": "Mutation",
-    "स्वामित्व प्रकार": "Ownership Type",
-    "खुदकाश्त": "Self-Cultivated / Pattadar",
-    "रामेश सिंह": "Ramesh Singh",
-    "हरि सिंह": "Hari Singh",
-    "रामपुर": "Rampur",
-    "हापुड़": "Hapur",
-    "मेरठ": "Meerut",
+    "survey_number": [
+        "survey number", "survey no", "sy no", "survey", "sy.no", "survey/sub-division", "sub division no",
+        "సర్వే నంబరు", "సర్వే నం", "సర్వే సంఖ్య", "సర్వే నంబర్", "సర్వే",
+        "सर्वे नंबर", "सर्वे संख्या", "सर्व्हे नंबर", "सर्वे क्र.", "गट क्रमांक",
+        "புல எண்", "சர்வே எண்", "சர்வே நம்பர்",
+        "ಸರ್ವೆ ನಂಬರ್", "ಸರ್ವೆ ಸಂಖ್ಯೆ", "ಸರ್ವೇ ನಂ",
+        "സർവേ നമ്പർ", "സർവേ നം",
+        "সার্ভে নম্বর", "দাগ নম্বর",
+        "સર્વે નંબર", "સર્વે નં.",
+        "ସର୍ଭେ ନମ୍ବର", "ଦାଗ ନମ୍ବର",
+        "ਸਰਵੇ ਨੰਬਰ", "ਖਸਰਾ ਨੰਬਰ"
+    ],
 
-    # Tamil terms
-    "தமிழ்நாடு அரசு": "Government of Tamil Nadu",
-    "வருவாய்த் துறை": "Revenue Department",
-    "பட்டா": "Patta / Ownership Record",
-    "சிட்டா": "Chitta",
-    "மாவட்டம்": "District",
-    "வட்டம்": "Taluk/Mandal",
-    "கிராமம்": "Village",
-    "பட்டா எண்": "Patta Number",
-    "புல எண்": "Survey Number",
-    "உரிமையாளர் பெயர்": "Owner Name",
-    "பரப்பளவு": "Area",
-    "ஹெக்டேர்": "Hectares",
-    "புஞ்சை": "Dry Land",
-    "நஞ்சை": "Wet Land",
-    "பதிவு எண்": "Registration Number",
-    "பதிவு தேதி": "Registration Date",
-    "கிருஷ்ணமூர்த்தி": "Krishnamurthy",
-    "மதுரை": "Madurai",
-    "சோழவந்தான்": "Sholavandan",
+    "khata_number": [
+        "khata number", "khata no", "patta number", "patta no", "passbook no", "khata", "ror-1b no",
+        "ఖాతా నంబరు", "ఖాతా నం", "ఖాతా సంఖ్య", "పట్టా నంబరు", "పట్టాదారు పాస్ పుస్తకం సంఖ్య",
+        "खाता संख्या", "खाता नंबर", "खाता क्र.", "पट्टा क्रमांक",
+        "பட்டா எண்", "காதா எண்",
+        "ಖಾತಾ ನಂಬರ್", "ಖಾತಾ ಸಂಖ್ಯೆ", "ಪsample ನಂಬರ್",
+        "ഖാത നമ്പർ", "പട്ടാ നമ്പർ",
+        "খতিয়ান নম্বর", "খাতা নম্বর",
+        "ખાતા નંબર", "ખાતા નં.",
+        "ଖାତା ନମ୍ବର", "ଖତିୟାନ ନମ୍ବର",
+        "ਖਾਤਾ ਨੰਬਰ", "ਪੱਤੀ ਨੰਬਰ"
+    ],
 
-    # Kannada terms
-    "ಕರ್ನಾಟಕ ಸರ್ಕಾರ": "Government of Karnataka",
-    "ಕಂದಾಯ ಇಲಾಖೆ": "Revenue Department",
-    "ಪಹಣಿ": "Pahani / RTC",
-    "ಗ್ರಾಮ": "Village",
-    "ತಾಲೂಕು": "Taluk/Mandal",
-    "ಜಿಲ್ಲೆ": "District",
-    "ಖಾತೆ ಸಂಖ್ಯೆ": "Khata Number",
-    "ಸರ್ವೆ ನಂಬರ್": "Survey Number",
-    "ಖಾತೇದಾರರ ಹೆಸರು": "Owner Name",
-    "ವಿಸ್ತೀರ್ಣ": "Area",
-    "ಗುಂಟೆ": "Guntas",
-    "ಎಕರೆ": "Acres"
+    "khasra_number": [
+        "khasra number", "khasra no", "khasra", "plot/khasra",
+        "ఖస్రా నంబరు", "ఖస్రా నం",
+        "खसरा संख्या", "खसरा नंबर", "खसरा",
+        "கஸ்ரா எண்",
+        "ಖಸ್ರಾ ಸಂಖ್ಯೆ",
+        "ഖസ്ര നമ്പർ",
+        "খসড়া নম্বর",
+        "ખસરા નંબર",
+        "ଖସରା ନମ୍ବର",
+        "ਖਸਰਾ ਨੰਬਰ"
+    ],
+
+    "plot_number": [
+        "plot number", "plot no", "site no", "door no",
+        "ప్లాట్ నంబరు", "ప్లాట్ నం", "స్థల సంఖ్య",
+        "प्लॉट संख्या", "प्लॉट नंबर", "भूखंड क्रमांक",
+        "பிளாட் எண்",
+        "ಪ್ಲಾಟ್ ನಂಬರ್",
+        "പ്ലോട്ട് നമ്പർ",
+        "প্লট নম্বর",
+        "પ્લોટ નંબર",
+        "ପ୍ଲଟ ନମ୍ବର",
+        "ਪਲਾਟ ਨੰਬਰ"
+    ],
+
+    "area": [
+        "area", "extent", "total extent", "land extent", "total area", "measured area", "extent (acres)",
+        "విస్తీర్ణం", "మొత్తం విస్తీర్ణం", "భూమి విస్తీర్ణం", "విస్తీర్ణము", "వైశాల్యం",
+        "क्षेत्रफल", "कुल क्षेत्रफल", "जमीन का क्षेत्रफल", "क्षेत्र", "एकूण क्षेत्र",
+        "பரப்பளவு", "நிலப்பரப்பு", "மொத்த பரப்பளவு",
+        "ವಿಸ್ತೀರ್ಣ", "ಒಟ್ಟು ವಿಸ್ತೀರ್ಣ", "ಭೂ ವಿಸ್ತೀರ್ಣ",
+        "വിസ്തീർണ്ണം", "ഭൂവിസ്തൃതി",
+        "আয়তন", "জমির পরিমাণ",
+        "વિસ્તાર", "કુલ ક્ષેત્રફળ",
+        "କ୍ଷେତ୍ରଫଳ", "ମୋଟ କ୍ଷେତ୍ରଫଳ",
+        "ਰਕਬਾ", "ਖੇਤਰਫਲ"
+    ],
+
+    "village": [
+        "village name", "village", "revenue village", "grama", "mouza",
+        "గ్రామము", "గ్రామం", "రెవెన్యూ గ్రామం",
+        "ग्राम", "गांव", "गाँव", "मौजा", "गावाचे नाव",
+        "கிராமம்", "வருவாய் கிராமம்",
+        "ಗ್ರಾಮ", "ಕಂದಾಯ ಗ್ರಾಮ", "ಊರು",
+        "ഗ്രാമം", "വില്ലേജ്",
+        "গ্রাম", "মৌজা",
+        "ગામ", "ગામનું નામ",
+        "ଗ୍ରାମ", "ମୌଜା",
+        "ਪਿੰਡ", "ਮੌਜ਼ਾ"
+    ],
+
+    "mandal": [
+        "mandal", "tehsil", "taluk", "block", "sub-district", "taluq",
+        "మండలము", "మండలం", "తాలూకా",
+        "तहसील", "तालुका", "मंडल", "ब्लॉक",
+        "வட்டம்", "தாலுகா", "மண்டலம்",
+        "ತಾಲೂಕು", "ಮಂಡಲ",
+        "താലൂക്ക്", "മണ്ഡലം",
+        "তহশিল", "ব্লক", "থানা",
+        "તાલુકો", "મંડલ",
+        "ତହସିଲ", "ବ୍ଲକ",
+        "ਤਹਿਸੀਲ", "ਬਲਾਕ"
+    ],
+
+    "district": [
+        "district name", "district", "dist",
+        "జిల్లా", "జిల్లా పేరు",
+        "जिला", "जनपद", "जिल्हा",
+        "மாவட்டம்",
+        "ಜಿಲ್ಲೆ",
+        "ജില്ല",
+        "জেলা",
+        "જિલ્લો",
+        "ଜିଲ୍ଲା",
+        "ਜ਼ਿਲ੍ਹਾ"
+    ],
+
+    "state": [
+        "state", "state name", "province",
+        "రాష్ట్రము", "రాష్ట్రం",
+        "राज्य",
+        "மாநிலம்",
+        "ರಾಜ್ಯ",
+        "സംസ്ഥാനം",
+        "রাজ্য",
+        "રાજ્ય",
+        "ରାଜ୍ୟ",
+        "ਰਾਜ"
+    ],
+
+    "registration_number": [
+        "registration number", "registration no", "reg no", "application no", "application number", "doc no", "document number",
+        "దరఖాస్తు నంబరు", "దరఖాస్తు నం", "రిజిస్ట్రేషన్ నంబరు", "రిజిస్ట్రేషన్ నం", "దరఖాస్తు సంఖ్య", "పత్రం సంఖ్య",
+        "पंजीकरण संख्या", "पंजीकरण नंबर", "आवेदन संख्या", "दस्तावेज़ संख्या", "नोंदणी क्रमांक",
+        "பதிவு எண்", "விண்ணப்ப எண்",
+        "ನೋಂದಣಿ ಸಂಖ್ಯೆ", "ಅರ್ಜಿ ಸಂಖ್ಯೆ",
+        "രജിസ്ട്രേഷൻ നമ്പർ", "അപേക്ഷ നമ്പർ",
+        "নিবন্ধন নম্বর", "আবেদন নম্বর",
+        "નોંધણી નંબર", "અરજી નંબર",
+        "ପଞ୍ଜୀକରଣ ନମ୍ବର", "ଦରଖାସ୍ତ ନମ୍ବର",
+        "ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਨੰਬਰ", "ਅਰਜ਼ੀ ਨੰਬਰ"
+    ],
+
+    "registration_date": [
+        "registration date", "date of registration", "application date", "date", "issue date",
+        "తేది", "తేదీ", "దరఖాస్తు తేది", "రిజిస్ట్రేషన్ తేది", "జారీ చేసిన తేది",
+        "दिनांक", "पंजीकरण तिथि", "तारीख", "आवेदन दिनांक",
+        "தேதி", "பதிவு தேதி",
+        "ದಿನಾಂಕ", "ನೋಂದಣಿ ದಿನಾಂಕ",
+        "തീയതി", "രജിസ്ട്രേഷൻ തീയതി",
+        "তারিখ", "নিবন্ধন তারিখ",
+        "તારીખ", "નોંધણી તારીખ",
+        "ତାରିଖ", "ପଞ୍ଜୀକରଣ ତାରିଖ",
+        "ਮਿਤੀ", "ਤਾਰੀਖ"
+    ],
+
+    "land_classification": [
+        "land classification", "nature of land", "classification", "type of land", "land type",
+        "భూమి స్వభావము", "భూమి రకము", "భూమి వర్గీకరణ", "ఆయకట్టు",
+        "भूमि का प्रकार", "भूमि वर्गीकरण", "जमीन प्रकार",
+        "நில வகைப்பாடு", "நில வகை",
+        "ಭೂಮಿಯ ವರ್ಗೀಕರಣ", "ಜಮೀನಿನ ವಿವರ",
+        "ഭൂമിയുടെ തരം",
+        "জমির শ্রেণী",
+        "જમીનનો પ્રકાર",
+        "ଜମି କିସମ",
+        "ਜ਼ਮੀਨ ਦੀ ਕਿਸਮ"
+    ]
 }
-
-def translate_to_english(text: str, src_lang: str = "Telugu") -> str:
-    """
-    Translates Indic land revenue terms to standardized English terminology.
-    """
-    if not text:
-        return ""
-    if src_lang == "English":
-        return text
-
-    translated = text
-    for regional_term, english_term in REVENUE_TERM_TRANSLATIONS.items():
-        if regional_term in translated:
-            translated = translated.replace(regional_term, english_term)
-
-    return translated

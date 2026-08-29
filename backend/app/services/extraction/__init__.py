@@ -1,9 +1,10 @@
-﻿from app.services.extraction.regex_extractor import extract_fields, extract_area_value, clean_extracted_value
-from app.services.extraction.layout_parser import parse_document_layout
+﻿from app.services.extraction.multilingual_extractor import MultilingualFieldExtractor
+from app.services.extraction.regex_extractor import extract_fields, extract_structured_fields, extract_area_value, clean_extracted_value
 
 __all__ = [
+    "MultilingualFieldExtractor",
     "extract_fields",
+    "extract_structured_fields",
     "extract_area_value",
-    "clean_extracted_value",
-    "parse_document_layout"
+    "clean_extracted_value"
 ]
