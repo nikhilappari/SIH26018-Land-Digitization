@@ -49,33 +49,50 @@ const Dashboard = () => {
     );
   }
 
-  const { kpis, status_distribution, recent_activity } = stats;
+  const kpis = stats?.kpis || {
+    total_documents: stats?.total_documents_processed || 0,
+    digitized_records: stats?.verified_records_count || 0,
+    pending_review: stats?.pending_human_review_count || 0,
+    detected_anomalies: 0,
+    total_area_acres: stats?.total_area_digitized_acres || 0
+  };
+
+  const status_distribution = stats?.status_distribution || {
+    "Verified": 0,
+    "Pending Review": 0,
+    "Low Confidence": 0,
+    "Owner Conflict": 0,
+    "Area Mismatch": 0,
+    "Duplicate": 0
+  };
+
+  const recent_activity = stats?.recent_activity || stats?.recent_documents || [];
 
   const kpiCards = [
     { 
       label: "Total Uploaded Documents", 
-      value: kpis.total_documents, 
+      value: kpis.total_documents ?? 0, 
       icon: FileText, 
       color: "bg-blue-50 text-blue-600 border-blue-100", 
       desc: "All historical uploaded files" 
     },
     { 
       label: "Verified Digital Records", 
-      value: kpis.digitized_records, 
+      value: kpis.digitized_records ?? 0, 
       icon: CheckCircle, 
       color: "bg-emerald-50 text-emerald-600 border-emerald-100", 
       desc: "Digitized records stored in db" 
     },
     { 
       label: "Awaiting Officer Review", 
-      value: kpis.pending_review, 
+      value: kpis.pending_review ?? 0, 
       icon: AlertTriangle, 
       color: "bg-amber-50 text-amber-600 border-amber-100", 
       desc: "Requires human-in-the-loop review" 
     },
     { 
       label: "Active Validation Anomalies", 
-      value: kpis.detected_anomalies, 
+      value: kpis.detected_anomalies ?? 0, 
       icon: ShieldAlert, 
       color: "bg-rose-50 text-rose-600 border-rose-100", 
       desc: "Unresolved logic flags & conflicts" 
@@ -83,7 +100,8 @@ const Dashboard = () => {
   ];
 
   // For drawing distribution chart
-  const maxCount = Math.max(...Object.values(status_distribution), 1);
+  const distributionValues = Object.values(status_distribution);
+  const maxCount = distributionValues.length > 0 ? Math.max(...distributionValues, 1) : 1;
 
   return (
     <div className="space-y-8">

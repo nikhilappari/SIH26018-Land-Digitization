@@ -75,12 +75,27 @@ export const authService = {
   },
   
   getCurrentUser: () => {
-    const user = localStorage.getItem('sih_auth_user');
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem('sih_auth_user');
+      return user ? JSON.parse(user) : null;
+    } catch {
+      return null;
+    }
   },
   
   getToken: () => {
-    return localStorage.getItem('sih_auth_token');
+    return localStorage.getItem('sih_auth_token') || null;
+  },
+
+  isAuthenticated: () => {
+    const token = localStorage.getItem('sih_auth_token');
+    const userStr = localStorage.getItem('sih_auth_user');
+    if (!token || !userStr) return false;
+    try {
+      return JSON.parse(userStr) !== null;
+    } catch {
+      return false;
+    }
   }
 };
 

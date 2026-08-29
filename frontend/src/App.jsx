@@ -15,11 +15,7 @@ import { authService } from './services/api';
 
 // Route guard for protected dashboard pages
 const ProtectedRoute = ({ children }) => {
-  const token = authService.getToken();
-  const user = authService.getCurrentUser();
-
-  if (!token || !user) {
-    // Clear localStorage values if corrupt
+  if (!authService.isAuthenticated()) {
     authService.logout();
     return <Navigate to="/login" replace />;
   }

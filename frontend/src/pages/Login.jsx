@@ -12,19 +12,24 @@ const Login = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (authService.getCurrentUser()) {
-      navigate('/');
+    if (authService.isAuthenticated()) {
+      navigate('/', { replace: true });
     }
   }, [navigate]);
 
+  const handleDemoLogin = (demoUser, demoPass) => {
+    setUsername(demoUser);
+    setPassword(demoPass);
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
       await authService.login(username, password);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.detail || 
@@ -121,19 +126,30 @@ const Login = () => {
           <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs">
             <h4 className="font-bold text-amber-900 uppercase tracking-wide mb-2 flex items-center gap-1.5">
               <AlertCircle size={14} />
-              Demonstration Credentials
+              Demonstration Accounts (Click to Fill)
             </h4>
-            <div className="space-y-1.5 text-slate-700">
-              <p>
-                <span className="font-semibold text-slate-900">Official Account:</span>
-                <br />
-                User: <code className="bg-white px-1 py-0.5 rounded border">revenue_officer</code> / Pass: <code className="bg-white px-1 py-0.5 rounded border">sih2026password</code>
-              </p>
-              <p>
-                <span className="font-semibold text-slate-900">Admin Account:</span>
-                <br />
-                User: <code className="bg-white px-1 py-0.5 rounded border">admin_sih</code> / Pass: <code className="bg-white px-1 py-0.5 rounded border">sih2026admin</code>
-              </p>
+            <div className="space-y-2 text-slate-700">
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('revenue_officer', 'sih2026password')}
+                className="w-full text-left p-2 bg-white rounded border border-amber-300 hover:bg-amber-100/50 transition cursor-pointer"
+              >
+                <span className="font-bold text-slate-900">Official Account:</span>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  User: <code className="bg-slate-100 px-1 py-0.5 rounded font-bold text-amber-800">revenue_officer</code> • Pass: <code className="bg-slate-100 px-1 py-0.5 rounded font-bold text-amber-800">sih2026password</code>
+                </div>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('admin_sih', 'sih2026admin')}
+                className="w-full text-left p-2 bg-white rounded border border-amber-300 hover:bg-amber-100/50 transition cursor-pointer"
+              >
+                <span className="font-bold text-slate-900">Admin Account:</span>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  User: <code className="bg-slate-100 px-1 py-0.5 rounded font-bold text-amber-800">admin_sih</code> • Pass: <code className="bg-slate-100 px-1 py-0.5 rounded font-bold text-amber-800">sih2026admin</code>
+                </div>
+              </button>
             </div>
           </div>
           

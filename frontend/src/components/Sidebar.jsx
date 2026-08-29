@@ -46,13 +46,13 @@ const Sidebar = () => {
         {user && (
           <div className="px-6 py-4 bg-slate-900/50 border-b border-slate-800 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 font-bold flex items-center justify-center text-sm border border-amber-500/30">
-              {user.username.substring(0, 2).toUpperCase()}
+              {user.username ? user.username.substring(0, 2).toUpperCase() : 'RO'}
             </div>
             <div>
               <p className="text-xs text-slate-400">Welcome Back</p>
-              <p className="text-sm font-semibold text-slate-200 truncate max-w-[140px]">{user.username}</p>
+              <p className="text-sm font-semibold text-slate-200 truncate max-w-[140px]">{user.username || 'Revenue Officer'}</p>
               <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-medium border border-slate-700">
-                {user.role}
+                {user.role || 'Official'}
               </span>
             </div>
           </div>
