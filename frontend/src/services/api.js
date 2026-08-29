@@ -121,6 +121,11 @@ export const documentService = {
   getDetails: async (id) => {
     const response = await api.get(`/api/documents/${id}`);
     return response.data;
+  },
+
+  getExtractionDebug: async (id) => {
+    const response = await api.get(`/api/documents/${id}/extraction-debug`);
+    return response.data;
   }
 };
 
