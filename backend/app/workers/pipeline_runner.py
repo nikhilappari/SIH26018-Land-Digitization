@@ -7,7 +7,7 @@ from app.models.land_records import LandRecord
 from app.models.validation import ValidationResult
 from app.services.preprocessing import clean_and_deskew_image, process_pdf_document
 from app.services.language import detect_language, classify_document_type
-from app.services.ocr import TesseractOCREngine, OnlineOCREngine
+from app.services.ocr import run_ocr, RapidOCREngine, TesseractOCREngine, OnlineOCREngine
 from app.services.extraction import MultilingualFieldExtractor
 from app.services.validation import validate_record
 from app.services.confidence import calculate_document_confidence
@@ -54,19 +54,19 @@ def run_document_digitization_pipeline(document_id: int):
         doc.processing_stage = "OCR_PROCESSING"
         db.commit()
 
-        # Step 2a: Run OCR Engine
-        online_ocr = OnlineOCREngine()
-        ocr_result = online_ocr.extract_text(preprocessed_path, language="auto")
-        
-        if not ocr_result.get("text") or len(ocr_result["text"].strip()) < 15:
-            logger.info("Online OCR returned minimal text. Falling back to local Multilingual Tesseract...")
-            tesseract_ocr = TesseractOCREngine()
-            ocr_result = tesseract_ocr.extract_text(preprocessed_path, language=doc.language or "English")
+        # Step 2: Multi-Engine OCR (RapidOCR Neural -> Online OCR -> Tesseract)
+        # Try original file first for maximum clarity, then preprocessed fallback
+        ocr_result = run_ocr(doc.file_path, language=doc.language or "English")
+        if not ocr_result.get("text") or len(ocr_result["text"].strip()) < 30:
+            if preprocessed_path and os.path.exists(preprocessed_path) and preprocessed_path != doc.file_path:
+                ocr_prep = run_ocr(preprocessed_path, language=doc.language or "English")
+                if len(ocr_prep.get("text", "")) > len(ocr_result.get("text", "")):
+                    ocr_result = ocr_prep
 
         raw_ocr_text = ocr_result.get("text", "")
-        ocr_conf = float(ocr_result.get("confidence", 80.0))
+        ocr_conf = float(ocr_result.get("confidence", 85.0))
         doc.ocr_text = raw_ocr_text
-        logger.info(f"Stage 2 Completed: OCR produced {len(raw_ocr_text)} characters (Conf: {ocr_conf}%)")
+        logger.info(f"Stage 2 Completed: OCR produced {len(raw_ocr_text)} characters via {ocr_result.get('engine', 'OCR')} (Conf: {ocr_conf}%)")
 
         # -------------------------------------------------------------
         # Stage 3: LANGUAGE DETECTION & DOCUMENT CLASSIFICATION

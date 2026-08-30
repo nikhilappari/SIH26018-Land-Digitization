@@ -1,4 +1,4 @@
-﻿from typing import Dict, List
+from typing import Dict, List
 
 # Comprehensive canonical aliases across all 11 Indian official languages
 CANONICAL_FIELD_ALIASES: Dict[str, List[str]] = {
@@ -103,7 +103,7 @@ CANONICAL_FIELD_ALIASES: Dict[str, List[str]] = {
     ],
 
     "village": [
-        "village name", "village", "revenue village", "grama", "mouza",
+        "village name", "village", "vilage", "revenue village", "grama", "mouza",
         "గ్రామము", "గ్రామం", "రెవెన్యూ గ్రామం",
         "ग्राम", "गांव", "गाँव", "मौजा", "गावाचे नाव",
         "கிராமம்", "வருவாய் கிராமம்",

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import cv2
 import numpy as np
 from PIL import Image
@@ -22,10 +22,12 @@ def detect_skew(image: np.ndarray) -> float:
         angles = []
         if lines is not None:
             for line in lines:
-                x1, y1, x2, y2 = line[0]
-                angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
-                if -45 < angle < 45:
-                    angles.append(angle)
+                l = line[0] if len(line.shape) > 1 else line
+                if len(l) >= 4:
+                    x1, y1, x2, y2 = int(l[0]), int(l[1]), int(l[2]), int(l[3])
+                    angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
+                    if -45 < angle < 45:
+                        angles.append(angle)
                     
         return float(np.median(angles)) if angles else 0.0
     except Exception as e:
@@ -44,27 +46,16 @@ def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
 
 def denoise_photocopy(gray: np.ndarray) -> np.ndarray:
     """Removes salt-and-pepper photocopy speckles while preserving text characters."""
-    # 1. Median filter
     med = cv2.medianBlur(gray, 3)
-    
-    # 2. Filter isolated noise dots (< 5 pixels) using connected components
-    inv = cv2.bitwise_not(med)
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(inv, connectivity=8)
-    cleaned_inv = inv.copy()
-    for i in range(1, num_labels):
-        area = stats[i, cv2.CC_STAT_AREA]
-        if area < 5:
-            cleaned_inv[labels == i] = 0
-    return cv2.bitwise_not(cleaned_inv)
+    return med
 
 def preprocess_image(input_path: str, output_path: Optional[str] = None) -> Any:
     """
-    Full image preprocessing pipeline:
+    High-fidelity image preprocessing pipeline:
     1. Skew detection and rotation
     2. Grayscale conversion
-    3. Photocopy / salt-and-pepper noise removal
-    4. CLAHE contrast enhancement
-    5. High-quality Otsu binarization
+    3. Noise filtering
+    4. Contrast enhancement (CLAHE) - Preserving continuous gradient for Deep Learning OCR models
     """
     start_time = time.time()
     
@@ -112,18 +103,15 @@ def preprocess_image(input_path: str, output_path: Optional[str] = None) -> Any:
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         enhanced = clahe.apply(cleaned)
 
-        # 5. Otsu's Binarization
-        _, binarized = cv2.threshold(enhanced, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-        # Save output image
-        cv2.imwrite(output_path, binarized)
+        # Save output image as high-quality enhanced grayscale
+        cv2.imwrite(output_path, enhanced)
 
         return {
             "success": True,
             "skew_angle": round(float(skew_angle), 2),
             "noise_removed": True,
             "contrast_enhanced": True,
-            "binarized": True,
+            "binarized": False,
             "processing_time_ms": int((time.time() - start_time) * 1000),
             "is_pdf": False,
             "message": "Image preprocessing completed successfully."
