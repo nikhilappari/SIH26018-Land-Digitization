@@ -1,21 +1,26 @@
 ﻿import os
-from typing import Optional
-from app.services.preprocessing.image_cleaner import preprocess_image, detect_skew, rotate_image, denoise_photocopy
-from app.services.preprocessing.pdf_processor import extract_pdf_pages_or_text
+from typing import Optional, Dict, Any
+from app.services.preprocessing.image_enhancer import (
+    enhance_document_image,
+    detect_skew,
+    rotate_image,
+    denoise_photocopy,
+    preprocess_image
+)
+from app.services.preprocessing.pdf_processor import (
+    extract_pdf_pages_or_text,
+    process_pdf_document
+)
 
 def clean_and_deskew_image(input_path: str, output_path: Optional[str] = None) -> str:
-    if output_path is None:
-        os.makedirs("preprocessed", exist_ok=True)
-        base_name = os.path.basename(input_path)
-        output_path = os.path.join("preprocessed", f"clean_{base_name}")
-    preprocess_image(input_path, output_path)
-    return output_path
-
-process_pdf_document = extract_pdf_pages_or_text
+    """Convenience helper returning enhanced image path."""
+    res = enhance_document_image(input_path, output_path)
+    return res.get("output_path", input_path)
 
 __all__ = [
-    "preprocess_image",
+    "enhance_document_image",
     "clean_and_deskew_image",
+    "preprocess_image",
     "detect_skew",
     "rotate_image",
     "denoise_photocopy",

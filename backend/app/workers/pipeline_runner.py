@@ -1,23 +1,33 @@
-import os
+﻿import os
 import logging
 from sqlalchemy.orm import Session
 from app.database.session import SessionLocal
 from app.models.documents import Document
 from app.models.land_records import LandRecord
 from app.models.validation import ValidationResult
-from app.services.preprocessing import clean_and_deskew_image, process_pdf_document
-from app.services.language import detect_language, classify_document_type
-from app.services.ocr import run_ocr, RapidOCREngine, TesseractOCREngine, OnlineOCREngine
-from app.services.extraction import MultilingualFieldExtractor
+from app.services.preprocessing import clean_and_deskew_image, extract_pdf_pages_or_text
+from app.services.ocr import run_ocr
+from app.services.handwriting import assess_handwriting_and_quality
+from app.services.language_detection import detect_language
+from app.services.document_classification import classify_document_type
+from app.services.field_extraction import MultilingualFieldExtractor
 from app.services.validation import validate_record
 from app.services.confidence import calculate_document_confidence
+from app.services.verification import evaluate_verification_routing
 
 logger = logging.getLogger(__name__)
 
 def run_document_digitization_pipeline(document_id: int):
     """
-    Asynchronous end-to-end digitization pipeline with structured bounding boxes,
-    multilingual extraction, normalization, and statutory revenue validation.
+    Asynchronous end-to-end modular AI land digitization pipeline:
+    1. Preprocessing (PyMuPDF rendering + Skew/Noise/CLAHE enhancement)
+    2. Multi-Engine OCR with spatial bounding box extraction
+    3. Language Detection & Document Classification
+    4. Handwriting & Image Quality Assessment
+    5. Multilingual Field Extraction & Provenance Tracking
+    6. Canonical Normalization (Dates, Extents, Place Names)
+    7. Statutory Revenue Validation & Anomaly Detection
+    8. Confidence Scoring & Verification Routing
     """
     db: Session = SessionLocal()
     try:
@@ -29,7 +39,7 @@ def run_document_digitization_pipeline(document_id: int):
         logger.info(f"==> Starting Land Record Digitization Pipeline for Document #{doc.id}: {doc.original_filename}")
 
         # -------------------------------------------------------------
-        # Stage 1: PREPROCESSING (Noise removal, Deskew, Contrast)
+        # Stage 1: PREPROCESSING (Multi-page PDF / High-res OpenCV Enhancement)
         # -------------------------------------------------------------
         doc.processing_stage = "PREPROCESSING"
         doc.status = "Processing"
@@ -39,7 +49,7 @@ def run_document_digitization_pipeline(document_id: int):
         preprocessed_path = doc.file_path
         
         if ext == '.pdf':
-            pdf_result = process_pdf_document(doc.file_path)
+            pdf_result = extract_pdf_pages_or_text(doc.file_path)
             preprocessed_path = pdf_result.get("rendered_images", [doc.file_path])[0]
         elif ext in ['.jpg', '.jpeg', '.png']:
             preprocessed_path = clean_and_deskew_image(doc.file_path)
@@ -49,13 +59,12 @@ def run_document_digitization_pipeline(document_id: int):
         logger.info(f"Stage 1 Completed: Preprocessed image generated at {preprocessed_path}")
 
         # -------------------------------------------------------------
-        # Stage 2: OCR EXECUTION (Multi-Engine with Bounding Box Overlay)
+        # Stage 2: MULTI-ENGINE OCR (RapidOCR Neural -> Fallback)
         # -------------------------------------------------------------
         doc.processing_stage = "OCR_PROCESSING"
         db.commit()
 
-        # Step 2: Multi-Engine OCR (RapidOCR Neural -> Online OCR -> Tesseract)
-        # Try original file first for maximum clarity, then preprocessed fallback
+        # Primary pass on original image, fallback to preprocessed
         ocr_result = run_ocr(doc.file_path, language=doc.language or "English")
         if not ocr_result.get("text") or len(ocr_result["text"].strip()) < 30:
             if preprocessed_path and os.path.exists(preprocessed_path) and preprocessed_path != doc.file_path:
@@ -69,29 +78,26 @@ def run_document_digitization_pipeline(document_id: int):
         logger.info(f"Stage 2 Completed: OCR produced {len(raw_ocr_text)} characters via {ocr_result.get('engine', 'OCR')} (Conf: {ocr_conf}%)")
 
         # -------------------------------------------------------------
-        # Stage 3: LANGUAGE DETECTION & DOCUMENT CLASSIFICATION
+        # Stage 3: LANGUAGE DETECTION, CLASSIFICATION & HTR ASSESSMENT
         # -------------------------------------------------------------
         doc.processing_stage = "CLASSIFYING"
         db.commit()
 
         classification = classify_document_type(raw_ocr_text, doc.original_filename)
-        if isinstance(classification, dict):
-            detected_lang = classification.get("language") or detect_language(raw_ocr_text)
-            doc_type_str = classification.get("doc_type", "Other")
-            format_type_str = classification.get("format_type", "Printed")
-        else:
-            detected_lang = detect_language(raw_ocr_text)
-            doc_type_str = str(classification)
-            format_type_str = "Printed"
+        htr_info = assess_handwriting_and_quality(doc.file_path, ocr_result.get("lines", []))
+
+        detected_lang = classification.get("language") or detect_language(raw_ocr_text, doc.original_filename)
+        doc_type_str = classification.get("doc_type", "Other")
+        format_type_str = htr_info.get("format_type", "Printed")
 
         doc.language = detected_lang
         doc.doc_type = doc_type_str
         doc.format_type = format_type_str
         db.commit()
-        logger.info(f"Stage 3 Completed: Detected Language='{detected_lang}', Doc Type='{doc_type_str}', Format='{format_type_str}'")
+        logger.info(f"Stage 3 Completed: Language='{detected_lang}', Doc Type='{doc_type_str}', Format='{format_type_str}'")
 
         # -------------------------------------------------------------
-        # Stage 4: MULTILINGUAL FIELD EXTRACTION & NORMALIZATION
+        # Stage 4: MULTILINGUAL FIELD EXTRACTION & PROVENANCE
         # -------------------------------------------------------------
         doc.processing_stage = "EXTRACTING"
         db.commit()
@@ -102,7 +108,7 @@ def run_document_digitization_pipeline(document_id: int):
         logger.info(f"Stage 4 Completed: Extracted fields: {staging_data}")
 
         # -------------------------------------------------------------
-        # Stage 5: VALIDATION & ANOMALY DETECTION
+        # Stage 5: STATUTORY REVENUE VALIDATION & ANOMALIES
         # -------------------------------------------------------------
         doc.processing_stage = "VALIDATING"
         db.commit()
@@ -123,21 +129,19 @@ def run_document_digitization_pipeline(document_id: int):
         db.commit()
 
         # -------------------------------------------------------------
-        # Stage 6: STAGING LAND RECORD & CONFIDENCE SCORING
+        # Stage 6: CONFIDENCE SCORING & VERIFICATION ROUTING
         # -------------------------------------------------------------
         overall_confidence = calculate_document_confidence(confidences, ocr_conf, len(anomalies))
         doc.confidence_score = overall_confidence
 
-        # Determine Final Status
-        if len(anomalies) > 0:
-            doc.status = "Pending Review"
-            doc.processing_stage = "NEEDS_REVIEW"
-        elif overall_confidence < 75.0:
-            doc.status = "Low Confidence"
-            doc.processing_stage = "NEEDS_REVIEW"
-        else:
-            doc.status = "Verified"
-            doc.processing_stage = "COMPLETED"
+        routing = evaluate_verification_routing(
+            overall_confidence=overall_confidence,
+            anomalies=anomalies,
+            is_handwritten=(format_type_str == "Handwritten")
+        )
+
+        doc.status = routing["status"]
+        doc.processing_stage = routing["processing_stage"]
 
         # Create or Update LandRecord staging entry
         existing_record = db.query(LandRecord).filter(LandRecord.document_id == doc.id).first()
