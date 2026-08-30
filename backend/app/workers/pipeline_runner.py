@@ -1,4 +1,4 @@
-﻿import os
+import os
 import logging
 from sqlalchemy.orm import Session
 from app.database.session import SessionLocal
@@ -97,13 +97,18 @@ def run_document_digitization_pipeline(document_id: int):
         logger.info(f"Stage 3 Completed: Language='{detected_lang}', Doc Type='{doc_type_str}', Format='{format_type_str}'")
 
         # -------------------------------------------------------------
-        # Stage 4: MULTILINGUAL FIELD EXTRACTION & PROVENANCE
+        # Stage 4: MULTILINGUAL FIELD EXTRACTION & AI AGENT ENSEMBLE
         # -------------------------------------------------------------
         doc.processing_stage = "EXTRACTING"
         db.commit()
 
-        extractor = MultilingualFieldExtractor()
-        structured_fields, staging_data = extractor.extract_all(ocr_result, ocr_conf)
+        agent = AILandExtractionAgent()
+        structured_fields, staging_data = agent.extract_with_ensemble(
+            ocr_result=ocr_result,
+            doc_confidence=ocr_conf,
+            language=doc.language or "English",
+            doc_type=doc.doc_type or "Other"
+        )
         confidences = {k: v["confidence"] for k, v in structured_fields.items()}
         logger.info(f"Stage 4 Completed: Extracted fields: {staging_data}")
 

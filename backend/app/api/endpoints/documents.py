@@ -112,6 +112,129 @@ def get_extraction_debug(
         ]
     }
 
+@router.post("/{document_id}/analyze")
+def analyze_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user)
+):
+    """
+    Triggers synchronous AI document analysis through the modular perception pipeline,
+    returning unified format classification, OCR tokens, canonical 19 fields, validation, and confidence.
+    """
+    doc = db.query(Document).filter(Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Run pipeline synchronously for immediate API response
+    run_document_digitization_pipeline(document_id)
+    db.refresh(doc)
+
+    land_record = db.query(LandRecord).filter(LandRecord.document_id == document_id).first()
+    validations = db.query(ValidationResult).filter(ValidationResult.document_id == document_id).all()
+
+    return {
+        "document_id": doc.id,
+        "document_type": doc.doc_type,
+        "language": doc.language,
+        "script": doc.language,
+        "format_type": doc.format_type,
+        "ocr": {
+            "text": doc.ocr_text,
+            "engine": "RapidOCR-Neural",
+            "confidence": doc.confidence_score
+        },
+        "fields": land_record.regional_values if land_record else {},
+        "validation": [
+            {
+                "rule_name": v.rule_name,
+                "severity": v.severity,
+                "description": v.description,
+                "is_resolved": v.is_resolved
+            }
+            for v in validations
+        ],
+        "confidence": {
+            "overall_score": doc.confidence_score,
+            "field_scores": land_record.confidence_scores if land_record else {}
+        },
+        "status": doc.status
+    }
+
+@router.get("/{document_id}/ai-debug")
+def get_ai_debug_trace(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user)
+):
+    """
+    Returns complete step-by-step processing trace:
+    preprocessing, language detection, format classification, OCR engine,
+    OCR result, layout analysis, field extraction, normalization, validation, confidence, final routing.
+    """
+    doc = db.query(Document).filter(Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    land_record = db.query(LandRecord).filter(LandRecord.document_id == document_id).first()
+    validations = db.query(ValidationResult).filter(ValidationResult.document_id == document_id).all()
+
+    return {
+        "document_id": doc.id,
+        "filename": doc.original_filename,
+        "trace": {
+            "preprocessing": {
+                "original_path": doc.file_path,
+                "preprocessed_path": doc.preprocessed_path,
+                "status": "COMPLETED"
+            },
+            "language_detection": {
+                "detected_language": doc.language,
+                "script": doc.language,
+                "method": "unicode_script_frequency_analysis"
+            },
+            "format_classification": {
+                "format_type": doc.format_type,
+                "method": "morphological_stroke_and_projection_analysis"
+            },
+            "document_classification": {
+                "doc_type": doc.doc_type,
+                "method": "statutory_revenue_keyword_matrix"
+            },
+            "ocr_engine": {
+                "primary": "RapidOCR (ONNX Neural)",
+                "character_count": len(doc.ocr_text or ""),
+                "ocr_confidence": doc.confidence_score
+            },
+            "ocr_result": doc.ocr_text,
+            "field_extraction": land_record.regional_values if land_record else {},
+            "normalization": {
+                "normalized_date": land_record.registration_date if land_record else None,
+                "normalized_area": land_record.area if land_record else None,
+                "area_unit": land_record.area_unit if land_record else None
+            },
+            "validation": [
+                {
+                    "rule_name": v.rule_name,
+                    "severity": v.severity,
+                    "description": v.description,
+                    "is_resolved": v.is_resolved
+                }
+                for v in validations
+            ],
+            "confidence_calculation": {
+                "overall_confidence": doc.confidence_score,
+                "field_confidences": land_record.confidence_scores if land_record else {},
+                "anomaly_penalty_count": len(validations)
+            },
+            "final_routing_decision": {
+                "status": doc.status,
+                "stage": doc.processing_stage,
+                "requires_human_review": doc.status != "Verified"
+            }
+        }
+    }
+
 @router.get("/{document_id}", response_model=DocumentDetailResponse)
 def get_document_details(
     document_id: int, 
