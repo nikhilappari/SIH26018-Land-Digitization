@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 from typing import Dict, Any, List, Optional
 from app.services.handwriting.format_classifier import classify_document_format
 from app.services.language_detection.script_detector import detect_language
@@ -57,19 +57,17 @@ class AIModelRouter:
             chosen_engine = "RapidOCR-ONNX-Printed"
 
         elif format_type == "HANDWRITTEN":
-            # Routed to HTR / VLM adapter
-            chosen_engine = "RapidOCR-HTR-Adapter"
-            # If token confidence is low, flag for human verification
-            if overall_conf < 75.0:
-                needs_review = True
+            # Real HTR model is not yet installed locally; route strictly to Human Review
+            chosen_engine = "HTR_UNAVAILABLE_REVIEW_REQUIRED"
+            needs_review = True
 
         elif format_type == "MIXED":
-            # Dual-pass hybrid
-            chosen_engine = "Hybrid-OCR-HTR"
+            # Dual-pass hybrid: OCR for printed headers + Human Review for handwritten fills
+            chosen_engine = "Hybrid-PrintedOCR_HandwrittenReview"
             needs_review = True
 
         else: # UNKNOWN
-            chosen_engine = "RapidOCR-Fallback"
+            chosen_engine = "UNKNOWN_FORMAT_REVIEW_REQUIRED"
             needs_review = True
 
         # Extract overall document bounding box

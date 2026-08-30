@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     
     # External OCR Space fallback API Key
     OCR_SPACE_API_KEY: str = "helloworld"
+
+    # Optional Multimodal Cloud AI Provider (Groq)
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.2-11b-vision-preview"
 
 settings = Settings()
 
