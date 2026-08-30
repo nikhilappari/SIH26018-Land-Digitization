@@ -10,7 +10,7 @@ from app.services.ocr import run_ocr
 from app.services.handwriting import assess_handwriting_and_quality
 from app.services.language_detection import detect_language
 from app.services.document_classification import classify_document_type
-from app.services.field_extraction import MultilingualFieldExtractor
+from app.services.field_extraction import MultilingualFieldExtractor, AILandExtractionAgent
 from app.services.validation import validate_record
 from app.services.confidence import calculate_document_confidence
 from app.services.verification import evaluate_verification_routing
