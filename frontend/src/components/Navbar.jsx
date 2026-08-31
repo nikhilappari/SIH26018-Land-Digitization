@@ -14,24 +14,14 @@ const Navbar = () => {
   });
 
   return (
-    <header className="bg-white border-b border-gray-200 h-[70px] px-4 sm:px-6 flex items-center justify-between shadow-xs sticky top-0 z-40 w-full">
-      {/* Top Left: Sidebar Toggle Button + Brand Logo */}
-      <div className="flex items-center gap-3 sm:gap-4">
-        <button
-          onClick={toggleSidebar}
-          title={isCollapsed ? "Expand Navigation Menu" : "Collapse to Mini Bar"}
-          className="p-2.5 hover:bg-slate-100 rounded-xl text-slate-600 hover:text-slate-900 border border-slate-200/80 transition cursor-pointer flex items-center justify-center shadow-xs"
-        >
-          {isCollapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}
-        </button>
-
-        <div className="flex items-center shrink-0">
-          <img 
-            src="/landsure-logo-transparent.png" 
-            alt="LandSure Cadastral Intelligence" 
-            className="h-11 sm:h-12 w-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
-          />
-        </div>
+    <header className="bg-white border-b border-gray-200 h-[70px] px-6 sm:px-8 flex items-center justify-between shadow-xs sticky top-0 z-40 w-full">
+      {/* Top Left Brand Logo */}
+      <div className="flex items-center shrink-0">
+        <img 
+          src="/landsure-logo-transparent.png" 
+          alt="LandSure Cadastral Intelligence" 
+          className="h-12 w-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
+        />
       </div>
 
       {/* Right Header: Status, Date & User Profile */}

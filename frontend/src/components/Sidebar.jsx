@@ -37,6 +37,19 @@ const Sidebar = () => {
         isCollapsed ? 'w-20' : 'w-68'
       } bg-slate-900 min-h-[calc(100vh-70px)] flex flex-col justify-between border-r border-slate-800 shadow-md shrink-0 select-none transition-all duration-300 ease-in-out relative`}
     >
+      {/* Floating Collapse Edge Pill Button */}
+      <button
+        onClick={toggleSidebar}
+        title={isCollapsed ? "Expand Navigation Menu" : "Collapse to Mini Bar"}
+        className="absolute -right-3.5 top-5 z-30 w-7 h-7 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-emerald-600 hover:border-emerald-500 shadow-md flex items-center justify-center transition-all cursor-pointer group"
+      >
+        {isCollapsed ? (
+          <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+        ) : (
+          <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+        )}
+      </button>
+
       <div className={`p-3 ${isCollapsed ? 'px-2.5' : 'p-4'} space-y-4`}>
         {/* Navigation Menu Header */}
         {!isCollapsed && (
