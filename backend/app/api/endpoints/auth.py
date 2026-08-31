@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -36,6 +36,32 @@ def login_for_access_token(
     db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.username == form_data.username).first()
+    
+    # Self-healing fallback for official demonstration accounts
+    if not user:
+        if form_data.username == "revenue_officer" and form_data.password == "sih2026password":
+            user = User(
+                username="revenue_officer",
+                email="officer@revenue.gov.in",
+                hashed_password=get_password_hash("sih2026password"),
+                role="Official",
+                is_active=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        elif form_data.username in ["admin", "admin_sih"] and form_data.password == "sih2026admin":
+            user = User(
+                username=form_data.username,
+                email=f"{form_data.username}@revenue.gov.in",
+                hashed_password=get_password_hash("sih2026admin"),
+                role="Admin",
+                is_active=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
