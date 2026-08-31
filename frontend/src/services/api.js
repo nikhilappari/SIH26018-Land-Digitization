@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Create Axios Instance
 const api = axios.create({
-  baseURL: '', // relative urls proxy to backend through vite proxy config
-  timeout: 30000,
+  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
   }
