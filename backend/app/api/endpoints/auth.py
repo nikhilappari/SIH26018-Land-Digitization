@@ -69,14 +69,12 @@ async def login_for_access_token(
                 )
                 db.add(user)
                 db.commit()
-                db.refresh(user)
-            token = create_access_token(data={"sub": user.username, "role": user.role, "user_id": user.id})
-            return {"access_token": token, "token_type": "bearer"}
         except Exception:
-            token = create_access_token(data={"sub": "revenue_officer", "role": "Official", "user_id": 1})
-            return {"access_token": token, "token_type": "bearer"}
+            pass
+        token = create_access_token(data={"sub": "revenue_officer", "role": "Official", "user_id": 1})
+        return {"access_token": token, "token_type": "bearer"}
 
-    elif username in ["admin", "admin_sih"] and password == "sih2026admin":
+    if username in ["admin", "admin_sih"] and password == "sih2026admin":
         try:
             user = db.query(User).filter(User.username == username).first()
             if not user:
@@ -89,12 +87,10 @@ async def login_for_access_token(
                 )
                 db.add(user)
                 db.commit()
-                db.refresh(user)
-            token = create_access_token(data={"sub": user.username, "role": user.role, "user_id": user.id})
-            return {"access_token": token, "token_type": "bearer"}
         except Exception:
-            token = create_access_token(data={"sub": username, "role": "Admin", "user_id": 2})
-            return {"access_token": token, "token_type": "bearer"}
+            pass
+        token = create_access_token(data={"sub": username, "role": "Admin", "user_id": 2})
+        return {"access_token": token, "token_type": "bearer"}
 
     # Standard database lookup
     try:
