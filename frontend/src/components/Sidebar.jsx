@@ -41,12 +41,12 @@ const Sidebar = () => {
       <button
         onClick={toggleSidebar}
         title={isCollapsed ? "Expand Navigation Menu" : "Collapse to Mini Bar"}
-        className="absolute -right-3.5 top-5 z-30 w-7 h-7 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-emerald-600 hover:border-emerald-500 shadow-md flex items-center justify-center transition-all cursor-pointer group"
+        className="absolute -right-3 top-3 z-30 w-6 h-6 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-emerald-600 hover:border-emerald-500 shadow-md flex items-center justify-center transition-all cursor-pointer group"
       >
         {isCollapsed ? (
-          <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
         ) : (
-          <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+          <ChevronLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
         )}
       </button>
 
