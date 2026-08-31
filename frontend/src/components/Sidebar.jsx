@@ -7,7 +7,9 @@ import {
   Search, 
   Map, 
   LogOut,
-  Landmark
+  UserCheck,
+  Building2,
+  ChevronRight
 } from 'lucide-react';
 import { authService } from '../services/api';
 
@@ -21,65 +23,100 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/upload', label: 'Upload Document', icon: UploadCloud },
-    { to: '/verification', label: 'Review Queue', icon: ShieldCheck },
-    { to: '/search', label: 'Registry Search', icon: Search },
-    { to: '/map', label: 'Cadastral Maps', icon: Map },
+    { to: '/', label: 'Dashboard', icon: LayoutDashboard, description: 'Overview & Statistics' },
+    { to: '/upload', label: 'Upload Document', icon: UploadCloud, description: 'AI Extraction Pipeline' },
+    { to: '/verification', label: 'Review Queue', icon: ShieldCheck, description: 'Officer Verification' },
+    { to: '/search', label: 'Registry Search', icon: Search, description: 'Cadastral Database' },
+    { to: '/map', label: 'Cadastral Maps', icon: Map, description: 'Spatial Visualizer' },
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-[calc(100vh-4rem)] flex flex-col justify-between border-r border-slate-800 shrink-0">
-      <div>
-
-        {/* User profile brief */}
+    <aside className="w-64 bg-white min-h-[calc(100vh-4rem)] flex flex-col justify-between border-r border-slate-200/90 shadow-xs shrink-0 select-none">
+      <div className="p-4 space-y-5">
+        {/* User profile brief card */}
         {user && (
-          <div className="px-6 py-4 bg-slate-900/50 border-b border-slate-800 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 font-bold flex items-center justify-center text-sm border border-amber-500/30">
+          <div className="p-3.5 bg-slate-50/80 hover:bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center gap-3 transition">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
               {user.username ? user.username.substring(0, 2).toUpperCase() : 'RO'}
             </div>
-            <div>
-              <p className="text-xs text-slate-400">Welcome Back</p>
-              <p className="text-sm font-semibold text-slate-200 truncate max-w-[140px]">{user.username || 'Revenue Officer'}</p>
-              <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-medium border border-slate-700">
-                {user.role || 'Official'}
-              </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-bold text-slate-900 truncate">
+                  {user.username || 'revenue_officer'}
+                </p>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </div>
+              <p className="text-[10px] text-slate-500 font-semibold truncate capitalize mt-0.5">
+                {user.role || 'Revenue Officer'} • Official
+              </p>
             </div>
           </div>
         )}
 
-        {/* Navigation Items */}
-        <nav className="p-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-amber-500 text-slate-950 shadow-md font-semibold'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                  }`
-                }
-              >
-                <Icon size={18} />
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
+        {/* Navigation Menu */}
+        <div>
+          <div className="px-3 mb-2 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Navigation Menu
+            </span>
+          </div>
+
+          <nav className="space-y-1.5">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <Icon 
+                          size={17} 
+                          className={`transition ${
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'
+                          }`} 
+                        />
+                        <span>{item.label}</span>
+                      </div>
+                      <ChevronRight 
+                        size={14} 
+                        className={`transition ${
+                          isActive ? 'text-emerald-200 opacity-100' : 'opacity-0 group-hover:opacity-40 text-slate-400'
+                        }`} 
+                      />
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* Logout Action */}
-      <div className="p-4 border-t border-slate-800 bg-slate-950/40">
+      {/* Footer Section & Logout Action */}
+      <div className="p-4 border-t border-slate-100 space-y-3 bg-slate-50/40">
+        <div className="px-2 flex items-center justify-between text-[11px] font-medium text-slate-400">
+          <span>Portal Session</span>
+          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+            Encrypted
+          </span>
+        </div>
+
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-all"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer"
         >
-          <LogOut size={18} />
-          <span>Logout Portal</span>
+          <LogOut size={15} />
+          <span>Sign Out of Portal</span>
         </button>
       </div>
     </aside>
