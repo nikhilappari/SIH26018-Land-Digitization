@@ -26,11 +26,11 @@ const ProtectedRoute = ({ children }) => {
 // Main Layout wrapping full-width navbar and sidebar below it
 const MainLayout = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-slate-100/60">
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="p-8 flex-1 overflow-y-auto min-h-[calc(100vh-4rem)]">
+        <main className="p-8 flex-1 overflow-y-auto min-h-[calc(100vh-70px)] bg-slate-100/60">
           {children}
         </main>
       </div>

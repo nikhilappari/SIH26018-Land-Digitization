@@ -31,7 +31,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-68 bg-white min-h-[calc(100vh-70px)] flex flex-col justify-between border-r border-slate-200/90 shadow-xs shrink-0 select-none">
+    <aside className="w-68 bg-slate-50 min-h-[calc(100vh-70px)] flex flex-col justify-between border-r border-slate-200/90 shadow-xs shrink-0 select-none">
       <div className="p-4 space-y-4">
         {/* Navigation Menu */}
         <div>
@@ -51,8 +51,8 @@ const Sidebar = () => {
                   className={({ isActive }) =>
                     `group flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                       isActive
-                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
+                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/25 border border-emerald-500'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-xs border border-transparent hover:border-slate-200/80 font-medium'
                     }`
                   }
                 >
@@ -83,17 +83,17 @@ const Sidebar = () => {
       </div>
 
       {/* Footer Section & Logout Action */}
-      <div className="p-4 border-t border-slate-100 space-y-3 bg-slate-50/40">
+      <div className="p-4 border-t border-slate-200/70 space-y-3 bg-slate-100/50">
         <div className="px-2 flex items-center justify-between text-xs font-medium text-slate-400">
           <span>Portal Session</span>
-          <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-200">
             Encrypted
           </span>
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer"
+          className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 hover:text-rose-700 hover:bg-white border border-transparent hover:border-rose-200 hover:shadow-xs transition cursor-pointer"
         >
           <LogOut size={17} />
           <span>Sign Out of Portal</span>
