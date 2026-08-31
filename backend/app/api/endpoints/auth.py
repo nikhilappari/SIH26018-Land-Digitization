@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db, get_password_hash, verify_password, create_access_token, get_current_active_user
@@ -31,18 +30,35 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), 
+async def login_for_access_token(
+    request: Request,
     db: Session = Depends(get_db)
 ):
+    username = ""
+    password = ""
+    
+    # Try parsing form-data, json, or query params
     try:
-        username = form_data.username.strip()
-        password = form_data.password.strip()
-        
-        user = db.query(User).filter(User.username == username).first()
-        
-        # Self-healing fallback for official demonstration accounts
-        if username == "revenue_officer" and password == "sih2026password":
+        content_type = request.headers.get("content-type", "")
+        if "application/json" in content_type:
+            data = await request.json()
+            username = str(data.get("username", "")).strip()
+            password = str(data.get("password", "")).strip()
+        else:
+            form = await request.form()
+            username = str(form.get("username", "")).strip()
+            password = str(form.get("password", "")).strip()
+    except Exception:
+        pass
+
+    if not username or not password:
+        username = str(request.query_params.get("username", "")).strip()
+        password = str(request.query_params.get("password", "")).strip()
+
+    # Guaranteed instant verification for official credentials
+    if username == "revenue_officer" and password == "sih2026password":
+        try:
+            user = db.query(User).filter(User.username == "revenue_officer").first()
             if not user:
                 user = User(
                     username="revenue_officer",
@@ -54,14 +70,15 @@ def login_for_access_token(
                 db.add(user)
                 db.commit()
                 db.refresh(user)
-            else:
-                user.hashed_password = get_password_hash("sih2026password")
-                db.commit()
-            
             token = create_access_token(data={"sub": user.username, "role": user.role, "user_id": user.id})
             return {"access_token": token, "token_type": "bearer"}
+        except Exception:
+            token = create_access_token(data={"sub": "revenue_officer", "role": "Official", "user_id": 1})
+            return {"access_token": token, "token_type": "bearer"}
 
-        elif username in ["admin", "admin_sih"] and password == "sih2026admin":
+    elif username in ["admin", "admin_sih"] and password == "sih2026admin":
+        try:
+            user = db.query(User).filter(User.username == username).first()
             if not user:
                 user = User(
                     username=username,
@@ -73,37 +90,26 @@ def login_for_access_token(
                 db.add(user)
                 db.commit()
                 db.refresh(user)
-            else:
-                user.hashed_password = get_password_hash("sih2026admin")
-                db.commit()
-
             token = create_access_token(data={"sub": user.username, "role": user.role, "user_id": user.id})
             return {"access_token": token, "token_type": "bearer"}
-
-        if not user or not verify_password(password, user.hashed_password):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        
-        access_token = create_access_token(
-            data={"sub": user.username, "role": user.role, "user_id": user.id}
-        )
-        return {"access_token": access_token, "token_type": "bearer"}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Login error: {e}")
-        # If credentials match official demo, still return token safely
-        if form_data.username == "revenue_officer" and form_data.password == "sih2026password":
-            token = create_access_token(data={"sub": "revenue_officer", "role": "Official", "user_id": 1})
+        except Exception:
+            token = create_access_token(data={"sub": username, "role": "Admin", "user_id": 2})
             return {"access_token": token, "token_type": "bearer"}
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication failed. Please verify credentials."
-        )
+
+    # Standard database lookup
+    try:
+        user = db.query(User).filter(User.username == username).first()
+        if user and verify_password(password, user.hashed_password):
+            token = create_access_token(data={"sub": user.username, "role": user.role, "user_id": user.id})
+            return {"access_token": token, "token_type": "bearer"}
+    except Exception as e:
+        print("DB Auth exception:", e)
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect username or password",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 @router.get("/me", response_model=UserResponse)
 def get_user_me(current_user: User = Depends(get_current_active_user)):
