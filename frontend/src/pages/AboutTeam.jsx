@@ -39,9 +39,7 @@ const AboutTeam = () => {
       focus: "Multilingual Indic Script Recognition, Bounding Box Alignment & LLM Parsing",
       avatar: "HB",
       color: "bg-indigo-600",
-      skills: ["PyTorch", "IndicNLP", "Gemini Vision", "Tesseract", "HuggingFace"],
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
+      skills: ["PyTorch", "IndicNLP", "Gemini Vision", "Tesseract", "HuggingFace"]
     },
     {
       name: "Sai Naidu Yalla",
@@ -50,9 +48,7 @@ const AboutTeam = () => {
       focus: "Adaptive Document Thresholding, Deskewing, Noise Reduction & dHash Matching",
       avatar: "SY",
       color: "bg-purple-600",
-      skills: ["OpenCV", "Perceptual Hashing", "Scikit-Image", "NumPy", "Pillow"],
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
+      skills: ["OpenCV", "Perceptual Hashing", "Scikit-Image", "NumPy", "Pillow"]
     },
     {
       name: "Poojitha Bellam",
@@ -61,9 +57,7 @@ const AboutTeam = () => {
       focus: "Cadastral Rule Engine, Anomaly Detection, SQL Schemas & PDF Certificate Generator",
       avatar: "PB",
       color: "bg-blue-600",
-      skills: ["FastAPI", "SQLAlchemy", "SQLite/Postgres", "ReportLab", "REST APIs"],
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
+      skills: ["FastAPI", "SQLAlchemy", "SQLite/Postgres", "ReportLab", "REST APIs"]
     },
     {
       name: "Kalyani Bondi",
@@ -72,9 +66,7 @@ const AboutTeam = () => {
       focus: "Interactive Verification Workspace, Responsive Dashboards & Component Library",
       avatar: "KB",
       color: "bg-amber-600",
-      skills: ["React 18", "Vite", "Tailwind CSS", "Lucide React", "UI/UX"],
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
+      skills: ["React 18", "Vite", "Tailwind CSS", "Lucide React", "UI/UX"]
     },
     {
       name: "Madhavi Nakka",
@@ -83,9 +75,7 @@ const AboutTeam = () => {
       focus: "SHA-256 Ledger Integrity, JWT RBAC Authentication & Spatial Map Integration",
       avatar: "MN",
       color: "bg-rose-600",
-      skills: ["Cryptographic Hashing", "JWT Auth", "GIS Mapping", "Unit Testing", "CI/CD"],
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
+      skills: ["Cryptographic Hashing", "JWT Auth", "GIS Mapping", "Unit Testing", "CI/CD"]
     }
   ];
 
@@ -239,29 +229,39 @@ const AboutTeam = () => {
                 </div>
               </div>
 
-              {/* Social / Contact Links */}
+              {/* Social / Contact Links (Only for Team Lead) */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
                 <span className="text-[11px] text-slate-400">Team Member #{index + 1}</span>
-                <div className="flex items-center gap-2">
-                  <a 
-                    href={member.github} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition"
-                    title="GitHub Profile"
-                  >
-                    <Github size={15} />
-                  </a>
-                  <a 
-                    href={member.linkedin} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition"
-                    title="LinkedIn Profile"
-                  >
-                    <Linkedin size={15} />
-                  </a>
-                </div>
+                {member.github || member.linkedin ? (
+                  <div className="flex items-center gap-2">
+                    {member.github && (
+                      <a 
+                        href={member.github} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition"
+                        title="GitHub Profile"
+                      >
+                        <Github size={15} />
+                      </a>
+                    )}
+                    {member.linkedin && (
+                      <a 
+                        href={member.linkedin} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="p-1.5 hover:bg-blue-50 rounded-lg text-blue-600 hover:text-blue-700 transition"
+                        title="LinkedIn Profile"
+                      >
+                        <Linkedin size={15} />
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 border border-slate-200/60 px-2 py-0.5 rounded">
+                    Core Developer
+                  </span>
+                )}
               </div>
             </div>
           ))}
