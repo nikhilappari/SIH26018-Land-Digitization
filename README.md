@@ -1,160 +1,146 @@
-# Intelligent Land Record Digitization and Validation System
+<div align="center">
 
-Bhumi-Digit is a full-stack, AI-powered system designed for the **Smart India Hackathon (SIH)**. It digitizes, normalizes, extracts, and validates historical Indian land records (scanned PDFs, handwritten registers, mutation records, cadastral maps, and printed receipts) into structured database registries with robust cross-document anomaly detection and a Human-in-the-Loop review workspace.
+# 🏛️ LandSure AI
+### Intelligent Multilingual Land Record Digitization & Cadastral Validation Platform
+**Smart India Hackathon (SIH) • Problem Statement SIH26018**
+
+[![Live Portal](https://img.shields.io/badge/Live_Portal-landsure--tech.vercel.app-059669?style=for-the-badge&logo=vercel)](https://landsure-tech.vercel.app)
+[![Backend API](https://img.shields.io/badge/Backend_API-Render_Live-4F46E5?style=for-the-badge&logo=render)](https://sih26018-land-digitization.onrender.com)
+[![API Docs](https://img.shields.io/badge/API_Docs-Swagger_UI-0284C7?style=for-the-badge&logo=fastapi)](https://sih26018-land-digitization.onrender.com/docs)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+
+</div>
 
 ---
 
-## 🚀 System Architecture & Features
+## 🌐 Live Production Deployments
+
+| Component | Platform | URL |
+| :--- | :--- | :--- |
+| **Frontend Web Portal** | **Vercel** | [https://landsure-tech.vercel.app](https://landsure-tech.vercel.app) |
+| **Backend REST API** | **Render** | [https://sih26018-land-digitization.onrender.com](https://sih26018-land-digitization.onrender.com) |
+| **Interactive API Documentation** | **Swagger / OpenAPI** | [https://sih26018-land-digitization.onrender.com/docs](https://sih26018-land-digitization.onrender.com/docs) |
+| **Alternative Frontend Mirror** | **Vercel** | [https://sih-26018-land-digitization.vercel.app](https://sih-26018-land-digitization.vercel.app) |
+
+---
+
+## 🔑 Demo Access Credentials
+
+| Role | Username | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| **Revenue Officer** | `revenue_officer` | `sih2026password` | Document Upload, Verification Queue, Field Editing, Certificate Issuance |
+| **System Administrator** | `admin` | `sih2026admin` | Full Cadastral Audit Logs, System Diagnostics, Global Registry Management |
+
+---
+
+## 📌 Executive Summary & Problem Context
+
+Historical and legacy Indian land records (Pattas, ROR-1B / Adangal extracts, Sale Deeds, Mutation registers, and Cadastral village survey sheets) are frequently preserved as physical paper archives or degraded scanned images in various **Indic languages** (Telugu, Tamil, Hindi, Kannada, Marathi, Gujarati, Odia, English).
+
+**LandSure AI** provides an end-to-end, automated, and human-in-the-loop digitization pipeline aligning with the **Digital India Land Records Modernization Programme (DILRMP)** standards:
+- **Computer Vision Preprocessing**: CLAHE contrast enhancement, deskewing, noise filtering, and adaptive thresholding binarization.
+- **Multilingual Neural OCR**: Deep neural text recognition across 8 Indian languages and scripts.
+- **19-Field Canonical Revenue Schema**: Automated extraction of critical cadastral attributes (Pattadar names, survey/khasra numbers, khata, plot, area extents, boundary extents, mutation references).
+- **Rule-Based Anomaly Detection**: Real-time cross-referencing for area discrepancies, ownership conflicts, duplicate entries, and boundary integrity.
+- **Interactive Verification Workspace**: Side-by-side verification console with native script overlays and single-click cryptographic sealing.
+- **Cryptographic Land Certificates**: Automated PDF generation featuring digital revenue seals and SHA-256 integrity verification hashes.
+
+---
+
+## 🏗️ System Architecture & Workflow
 
 ```mermaid
-graph TD
-    A[Scanned Document PDF/JPG/PNG] --> B[OpenCV Preprocessing]
-    B --> C[Language & Format Classification]
-    C --> D[OCR / HTR Engine Telugu & English]
-    D --> E[NLP Information Extractor]
-    E --> F[Land Record Staging Schema]
-    F --> G[Validation & Anomaly Engine]
-    G --> H{Anomalies Detected? <br/> or Conf < 80%}
-    H -- Yes --> I[Human Verification Workspace]
-    H -- No --> J[Auto-Approved and Published]
-    I --> K[Officer Edit & Audit Log]
-    K --> J
-    J --> L[(PostgreSQL Database)]
-    J --> M[PDF/CSV Export & Map Viewer]
-```
-
-### Key Modules:
-1. **OpenCV Image Preprocessing**: Quality assessment, deskewing (rotation correction), Gaussian noise removal, CLAHE contrast enhancement, and adaptive thresholding binarization.
-2. **Language & Type Classification**: Detects document type (Survey, Mutation, Adangal/ROR, Cadastral Map, etc.), language (Telugu, English, Hindi), and layout format (Printed, Handwritten).
-3. **OCR/HTR Engine**: Dual-language character mapper (English & Telugu) with a template-based demo injector fallback to guarantee SIH demonstration stability.
-4. **NLP Information Extraction**: Regex and keyword patterns extraction of 14 key land registry fields (Owner, Survey, Khasra, Khata, Area, etc.).
-5. **Logic Validation Engine**: Flags required field presence, date formats, negative/invalid area values, and cross-references the database to detect:
-   - **Area Mismatch**: Survey sheets listing different area sizes than registered deeds.
-   - **Owner Conflict**: Plot ownership changes without matching Mutation register records.
-   - **Duplicate Records**: Flagging identical land registries to prevent database inflation.
-6. **Human-in-the-Loop Workspace**: Interactive side-by-side editing dashboard where officials can view original scanned files against extracted text fields, inspect validation warnings, correct errors, and approve/reject entries.
-7. **Security & Audit Logs**: Fully tracks historical changes on every land record: records old value, new value, official user ID, and timestamp.
-8. **Interactive Cadastral GIS**: SVG vector viewer showcasing parcel boundary overlays detected by computer vision. Click on a parcel boundary to inspect linked ownership land records.
-
----
-
-## 📂 Project Structure
-
-```text
-SIH/
-├── backend/
-│   ├── app/
-│   │   ├── models/          # SQLAlchemy schemas (User, Document, LandRecord, ValidationResult, AuditLog)
-│   │   ├── routes/          # REST Endpoints (auth, documents, records, verification, dashboard)
-│   │   ├── schemas/         # Pydantic serialization models
-│   │   ├── services/        # Logic: preprocessing, ocr, classification, nlp_extractor, validation
-│   │   ├── config.py        # System configuration
-│   │   ├── database.py      # Connection engine and database initializers
-│   │   ├── dependencies.py  # Security and JWT route protectors
-│   │   └── main.py          # FastAPI application entry point
-│   ├── tests/               # PyTest unit tests for validation rules
-│   ├── generate_samples.py  # Script generating mock test images
-│   ├── seed.py              # Pre-seeds accounts and anomaly demo files
-│   ├── requirements.txt     # Python backend requirements
-│   └── Dockerfile           # Backend container dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Common: Sidebar, Navbar, StatusBadge, FileUploader
-│   │   ├── pages/           # Login, Dashboard, Upload, ProcessingResults, Verification, Search, RecordDetails, Map
-│   │   ├── services/        # Axios API wrapper (api.js)
-│   │   ├── App.jsx          # Route controller and guards
-│   │   ├── index.css        # Tailwind styling
-│   │   └── main.jsx         # React mount index
-│   ├── index.html           # Main template
-│   ├── tailwind.config.js   # Tailwind style tokens
-│   ├── vite.config.js       # Vite proxy configurations
-│   └── Dockerfile           # Frontend container dockerfile
-├── sample_documents/        # Sample land records generated for testing uploads
-├── docker-compose.yml       # Orchestrates PostgreSQL, API, and React Client
-└── README.md                # This manual
+flowchart TD
+    A[Scanned Land Record / Deed] --> B[OpenCV Preprocessing & Deskew]
+    B --> C[Language & Layout Classifier]
+    C --> D[Indic OCR / Neural HTR Engine]
+    D --> E[19 Canonical Field Extractor]
+    E --> F[Cadastral Validation & Anomaly Engine]
+    F --> G{Confidence >= 88% & No Anomalies?}
+    G -- Yes --> H[Auto-Approved & Cryptographically Sealed]
+    G -- No --> I[Human-in-the-Loop Review Queue]
+    I --> J[Officer Verification Workspace]
+    J --> K[Audit Trail & Historical Logging]
+    K --> H
+    H --> L[(Database Registry)]
+    H --> M[Official Government Land Certificate PDF]
+    H --> N[Public Registry Search]
 ```
 
 ---
 
-## ⚡ Getting Started (Docker Compose)
+## ⚡ Technology Stack
 
-The easiest way to start the entire system (Database, FastAPI Backend, React Frontend) is using Docker Compose:
+### Frontend Client:
+- **Framework**: React 18 with Vite
+- **Styling**: Tailwind CSS, Lucide Icons
+- **HTTP Client**: Axios (with JWT interceptors)
+- **Deployment**: Vercel Edge Network (Global CDN)
 
-1. **Verify Docker** is installed and running on your system.
-2. In the project root folder `SIH`, execute:
-   ```bash
-   docker-compose up --build
-   ```
-3. Once running, access the services:
-   - **Frontend UI Portal**: [http://localhost:3000](http://localhost:3000)
-   - **FastAPI Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
-   - **Database Connection**: `postgresql://postgres:postgrespassword@localhost:5432/land_digitization_db`
+### Backend Services:
+- **API Framework**: FastAPI (Python 3.11) with Uvicorn ASGI
+- **Computer Vision**: OpenCV (Headless), Pillow, NumPy
+- **OCR Engine**: RapidOCR (ONNX Neural Engine), PyTesseract (Tesseract 5 Indic Models)
+- **PDF & Certificate Engine**: ReportLab, PyMuPDF, PyPDF
+- **Database & ORM**: SQLAlchemy 2.0, SQLite / PostgreSQL
+- **Security & Auth**: OAuth2 Password Flow, PyJWT, Passlib, Cryptography
+- **Deployment**: Docker Container on Render Cloud Platform
 
 ---
 
-## 🛠️ Manual Installation (No Docker)
+## 👥 Development Team
 
-If you prefer to run the components locally on your host machine:
+| Name | Role & Specialization | Profiles |
+| :--- | :--- | :--- |
+| **Nikhil Appari** | **Team Lead & Full-Stack Architect**<br/>FastAPI Backend, React Frontend, Authentication, Cloud Deployments | [![GitHub](https://img.shields.io/badge/GitHub-nikhilappari-181717?style=flat-square&logo=github)](https://github.com/nikhilappari/) [![LinkedIn](https://img.shields.io/badge/LinkedIn-Nikhil_Appari-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nikhil-appari-365810309/) |
+| **Hemanth Birda** | **AI / ML & Indic OCR Lead**<br/>Multilingual Neural Character Recognition & Handwriting Extraction | — |
+| **Sai Naidu Yalla** | **Computer Vision & Preprocessing Engineer**<br/>CLAHE Enhancement, Deskewing, Noise Filtering & Boundary Analysis | — |
+| **Poojitha Bellam** | **Backend & Cadastral Database Architect**<br/>SQLAlchemy Data Models, Registry Query Engine & PDF Certificate Generation | — |
+| **Kalyani Bondi** | **Frontend & UI/UX Specialist**<br/>Responsive Design, Verification Workspace & Modern Glassmorphic Interfaces | — |
+| **Madhavi Nakka** | **Security & GIS QA Engineer**<br/>Cadastral Anomaly Rules, Audit Trail Integrity & Cross-Validation Logic | — |
+
+---
+
+## 🚀 Local Development Setup
+
+If you wish to run the system locally on your development machine:
 
 ### Prerequisites:
-- Python 3.10+ and Node.js 18+
-- (Optional) Tesseract OCR installed on your system path.
+- Python 3.10+
+- Node.js 18+ & npm
+- Git
 
-### 1. Start Backend:
+### 1. Clone the Repository:
+```bash
+git clone https://github.com/nikhilappari/SIH26018-Land-Digitization.git
+cd SIH26018-Land-Digitization
+```
+
+### 2. Backend Setup:
 ```bash
 cd backend
-pip install -r requirements.txt
-python generate_samples.py
-python seed.py
-python -m pytest tests/
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-*Note: If PostgreSQL is not running, the backend automatically falls back to a local SQLite file (`backend/land_records.db`) so it works out of the box with zero database installation!*
+python -m venv venv
 
-### 2. Start Frontend:
+# Windows:
+venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+
+pip install -r requirements.txt
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+*Backend API docs available at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)*
+
+### 3. Frontend Setup:
 ```bash
 cd ../frontend
 npm install
 npm run dev
 ```
-Open your browser to [http://localhost:5173](http://localhost:5173).
+*Frontend Portal running at: [http://localhost:3000](http://localhost:3000)*
 
 ---
 
-## 🔑 SIH Evaluation Demonstration Script
+## 📜 License & Compliance
 
-Log in as the **Official** (`revenue_officer` / `sih2026password`) or the **Admin** (`admin_sih` / `sih2026admin`) and follow this demonstration path:
-
-### Step 1: Inspect Seeded Dashboard & Anomaly Charts
-* Logging in displays KPI summary cards indicating total files, verified entries, review queues, and unresolved validation anomalies.
-* Horizontal status bars show the distribution of documents (Verified, Owner Conflict, Area Mismatch, Low Confidence, Processing).
-* Recent activity displays historical uploads.
-
-### Step 2: Upload a Telugu Adangal Scanned Document
-* Click **Upload Document** on the sidebar.
-* Choose `telugu_adangal_sample.jpg` from the `SIH/sample_documents/` folder.
-* Monitor the progress timeline: Uploaded $\rightarrow$ Preprocessing (binarized/skew corrected) $\rightarrow$ Language identified (Telugu) $\rightarrow$ OCR character mapping $\rightarrow$ Field Extraction (Owner, Area, Survey No) $\rightarrow$ Logic checks.
-* Since the details match standard registry formats with high confidence, the system **auto-approves** the record, marking it as **Verified**.
-* View the side-by-side page showing the binarized visual preview on the left and structured tables on the right. Click **Download Land Certificate** to open a beautiful printable PDF certificate.
-
-### Step 3: Review a Low Confidence Handwritten Register
-* Click **Upload Document** and select `Telugu_Handwritten_Register.png`.
-* The timeline completes. Because handwriting yields lower OCR confidence, the document status is flagged as **Low Confidence** and routed to the Officer's Review Queue.
-* Click **Open Review** to open the side-by-side editing console.
-* Note the warnings card alerting the officer of low character confidence.
-* The form highlights the owner name and survey number with warnings. Correct spelling or missing values and click **Approve & Publish**.
-* Go to **Registry Search**, click on the record, and scroll to **Audit Logs**. The history shows the exact modifications: the old value, the new value, your logged officer name, and the timestamp.
-
-### Step 4: Validate Cross-Document Anomalies (Owner Conflict)
-* Click **Upload Document** and select `conflict_owner_sample.png`.
-* This document lists survey number `145/3A` but names owner `Bandi Ramesh` instead of the verified owner `Kondru Ramu`.
-* The system flags an **Owner Conflict** error and blocks auto-publishing.
-* Open the review panel, note the error warning: `Ownership conflict detected. A mutation record may be required`.
-* Keep it pending or reject it.
-
-### Step 5: Test Cadastral GIS & Interactive Maps
-* Click **Cadastral Maps** on the sidebar.
-* An interactive SVG block map is loaded representing parcel boundary segments parsed by OpenCV contours.
-* Toggle the **CV Boundary Highlight** switch to see boundary contours highlighted.
-* Click on **Plot 12**. The panel on the right queries the registry and instantly displays owner `Kondru Ramu`, survey `145/3A`, and area `2.50 Acres` from the database.
-* Click **View Entire Land Registry File** to jump directly to its published detail page and audit history.
+Distributed under the **MIT License**. Compliant with **DILRMP (Digital India Land Records Modernization Programme)** standards for secure digital governance.
