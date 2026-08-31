@@ -230,8 +230,7 @@ const AboutTeam = () => {
               </div>
 
               {/* Social / Contact Links (Only for Team Lead) */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
-                <span className="text-[11px] text-slate-400">Team Member #{index + 1}</span>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end text-xs font-semibold text-slate-500">
                 {member.github || member.linkedin ? (
                   <div className="flex items-center gap-2">
                     {member.github && (
@@ -258,7 +257,7 @@ const AboutTeam = () => {
                     )}
                   </div>
                 ) : (
-                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 border border-slate-200/60 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 border border-slate-200/60 px-2.5 py-0.5 rounded-full">
                     Core Developer
                   </span>
                 )}
