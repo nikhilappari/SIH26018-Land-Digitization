@@ -13,6 +13,8 @@ import RecordDetails from './pages/RecordDetails';
 import MapVisualization from './pages/MapVisualization';
 import { authService } from './services/api';
 
+import { SidebarProvider } from './context/SidebarContext';
+
 // Route guard for protected dashboard pages
 const ProtectedRoute = ({ children }) => {
   if (!authService.isAuthenticated()) {
@@ -40,10 +42,11 @@ const MainLayout = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Authentication Route */}
-        <Route path="/login" element={<Login />} />
+    <SidebarProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Authentication Route */}
+          <Route path="/login" element={<Login />} />
 
         {/* Protected Dashboard Routes */}
         <Route
@@ -149,6 +152,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </SidebarProvider>
   );
 }
 
