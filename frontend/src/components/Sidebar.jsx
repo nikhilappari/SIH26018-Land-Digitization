@@ -8,7 +8,8 @@ import {
   Map, 
   LogOut,
   ChevronRight,
-  ChevronLeft
+  ChevronsLeft,
+  ChevronsRight
 } from 'lucide-react';
 import { authService } from '../services/api';
 import { useSidebar } from '../context/SidebarContext';
@@ -16,11 +17,24 @@ import { useSidebar } from '../context/SidebarContext';
 const Sidebar = () => {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
-  const { isCollapsed, toggleSidebar } = useSidebar();
+  const { isCollapsed, toggleSidebar, setIsCollapsed } = useSidebar();
 
-  const handleLogout = () => {
+  const handleLogout = (e) => {
+    e.stopPropagation();
     authService.logout();
     navigate('/login');
+  };
+
+  const handleSidebarClick = (e) => {
+    // If currently collapsed, clicking anywhere on the dark sidebar opens it
+    if (isCollapsed) {
+      setIsCollapsed(false);
+    }
+  };
+
+  const handleHeaderClick = (e) => {
+    e.stopPropagation();
+    toggleSidebar();
   };
 
   const navItems = [
@@ -33,32 +47,36 @@ const Sidebar = () => {
 
   return (
     <aside 
+      onClick={handleSidebarClick}
       className={`${
-        isCollapsed ? 'w-20' : 'w-68'
+        isCollapsed ? 'w-20 cursor-pointer' : 'w-68'
       } bg-slate-900 min-h-[calc(100vh-70px)] flex flex-col justify-between border-r border-slate-800 shadow-md shrink-0 select-none transition-all duration-300 ease-in-out relative`}
     >
-      {/* Floating Collapse Edge Pill Button */}
-      <button
-        onClick={toggleSidebar}
-        title={isCollapsed ? "Expand Navigation Menu" : "Collapse to Mini Bar"}
-        className="absolute -right-3 top-3 z-30 w-6 h-6 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-emerald-600 hover:border-emerald-500 shadow-md flex items-center justify-center transition-all cursor-pointer group"
-      >
-        {isCollapsed ? (
-          <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-        ) : (
-          <ChevronLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
-        )}
-      </button>
-
       <div className={`p-3 ${isCollapsed ? 'px-2.5' : 'p-4'} space-y-4`}>
-        {/* Navigation Menu Header */}
-        {!isCollapsed && (
-          <div className="px-3 mb-2 flex items-center justify-between transition-opacity duration-200">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+        {/* Navigation Menu Header - Click to toggle Open/Closed */}
+        <div 
+          onClick={handleHeaderClick}
+          title={isCollapsed ? "Click dark sidebar to expand" : "Click to collapse sidebar"}
+          className={`flex items-center ${
+            isCollapsed ? 'justify-center' : 'justify-between px-3'
+          } py-1.5 rounded-lg hover:bg-slate-800/60 cursor-pointer transition text-slate-400 hover:text-white`}
+        >
+          {!isCollapsed && (
+            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
               Navigation Menu
             </span>
+          )}
+          <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-emerald-400 transition">
+            {isCollapsed ? (
+              <ChevronsRight size={16} />
+            ) : (
+              <>
+                <span className="text-[9px] uppercase tracking-wider bg-slate-800/80 px-2 py-0.5 rounded text-slate-400">Hide</span>
+                <ChevronsLeft size={16} />
+              </>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Navigation Links */}
         <nav className="space-y-2">
