@@ -100,7 +100,7 @@ const VerificationWorkspace = () => {
   };
 
   const handleDownloadCertificate = () => {
-    window.open(`/api/documents/${id}/certificate`, '_blank');
+    window.open(documentService.getCertificateUrl(id), '_blank');
   };
 
   const handleInputChange = (field, value) => {

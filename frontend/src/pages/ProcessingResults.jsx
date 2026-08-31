@@ -120,7 +120,7 @@ const ProcessingResults = () => {
   const { document, land_record, validation_results } = data;
 
   const handleDownloadPDF = () => {
-    window.open(`/api/documents/${document.id}/certificate`, '_blank');
+    window.open(documentService.getCertificateUrl(document.id), '_blank');
   };
 
   const canonicalFieldList = [
