@@ -12,9 +12,12 @@ const Navbar = () => {
   return (
     <header className="bg-white border-b border-gray-200 h-16 px-8 flex items-center justify-between shadow-sm sticky top-0 z-30">
       {/* Title */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3.5">
+        <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 p-0.5 flex items-center justify-center shadow-xs overflow-hidden shrink-0">
+          <img src="/landsure-logo.png" alt="LandSure Logo" className="w-full h-full object-contain" />
+        </div>
         <div>
-          <h2 className="text-lg font-bold text-slate-900 leading-tight flex items-center gap-2">
+          <h2 className="text-base font-bold text-slate-900 leading-tight flex items-center gap-2">
             <span>Land<span className="text-emerald-600">Sure</span></span>
             <span className="text-slate-300 font-normal">|</span>
             <span className="text-slate-800 text-sm font-semibold">Intelligent Land Record Digitization & Validation</span>
