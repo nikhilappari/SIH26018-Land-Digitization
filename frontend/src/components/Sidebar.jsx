@@ -7,6 +7,7 @@ import {
   Search, 
   Map, 
   LogOut,
+  Users,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight
@@ -42,6 +43,7 @@ const Sidebar = () => {
     { to: '/upload', label: 'Upload Document', icon: UploadCloud, tooltip: 'Upload & Process Deed' },
     { to: '/verification', label: 'Review Queue', icon: ShieldCheck, tooltip: 'Review & Verify Records' },
     { to: '/search', label: 'Registry Search', icon: Search, tooltip: 'Search Land Records' },
+    { to: '/about', label: 'About & Team', icon: Users, tooltip: 'Developers & Tech Stack' },
   ];
 
   return (

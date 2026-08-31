@@ -11,6 +11,7 @@ import VerificationWorkspace from './pages/VerificationWorkspace';
 import Search from './pages/Search';
 import RecordDetails from './pages/RecordDetails';
 import MapVisualization from './pages/MapVisualization';
+import AboutTeam from './pages/AboutTeam';
 import { authService } from './services/api';
 
 import { SidebarProvider } from './context/SidebarContext';
@@ -143,6 +144,17 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <MapVisualization />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/about"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <AboutTeam />
               </MainLayout>
             </ProtectedRoute>
           }
