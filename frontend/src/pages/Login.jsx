@@ -45,10 +45,12 @@ const Login = () => {
       <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
         
         {/* Portal Banner Header */}
-        <div className="bg-slate-950 p-8 text-center border-b border-slate-800">
-          <div className="w-64 max-w-full bg-white rounded-2xl flex items-center justify-center mx-auto shadow-md mb-2 py-3 px-4 overflow-hidden border border-slate-800">
-            <img src="/landsure-logo.png" alt="LandSure Cadastral Intelligence" className="w-full h-12 object-contain" />
-          </div>
+        <div className="bg-slate-950 p-8 text-center border-b border-slate-800 flex items-center justify-center">
+          <img 
+            src="/landsure-logo-dark.png" 
+            alt="LandSure Cadastral Intelligence" 
+            className="w-56 max-w-full h-auto object-contain" 
+          />
         </div>
 
         <div className="p-8">

@@ -32,14 +32,12 @@ const Sidebar = () => {
     <aside className="w-64 bg-slate-900 text-white min-h-screen flex flex-col justify-between border-r border-slate-800">
       <div>
         {/* Header Branding */}
-        <div className="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-center">
-          <div className="bg-white rounded-xl py-2 px-3 w-full flex items-center justify-center shadow-sm">
-            <img 
-              src="/landsure-logo.png" 
-              alt="LandSure Cadastral Intelligence" 
-              className="w-full h-11 object-contain" 
-            />
-          </div>
+        <div className="px-5 py-6 border-b border-slate-800 bg-slate-950/90 flex items-center justify-center">
+          <img 
+            src="/landsure-logo-dark.png" 
+            alt="LandSure Cadastral Intelligence" 
+            className="w-full h-auto max-h-12 object-contain" 
+          />
         </div>
 
         {/* User profile brief */}
