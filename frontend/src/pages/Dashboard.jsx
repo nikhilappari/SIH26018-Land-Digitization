@@ -111,7 +111,7 @@ const Dashboard = () => {
           <TrendingUp size={240} />
         </div>
         <div className="max-w-2xl relative z-10">
-          <h1 className="text-2xl font-bold text-emerald-400 mb-2">LandSure AI Management Console</h1>
+          <h1 className="text-2xl font-bold text-emerald-400 mb-2">Intelligent Land Record Digitization & Validation</h1>
           <p className="text-sm text-slate-300 leading-relaxed">
             Monitor, validate, and verify historical Indian land record digitizations. 
             All extracted structures are audited, cross-referenced, and checked for anomalies.

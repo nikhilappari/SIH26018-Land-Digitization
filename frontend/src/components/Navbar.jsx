@@ -13,19 +13,13 @@ const Navbar = () => {
 
   return (
     <header className="bg-white border-b border-gray-200 h-[70px] px-6 sm:px-8 flex items-center justify-between shadow-xs sticky top-0 z-40 w-full">
-      {/* Top Left Brand & Title */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center shrink-0">
-          <img 
-            src="/landsure-logo-transparent.png" 
-            alt="LandSure Cadastral Intelligence" 
-            className="h-12 w-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
-          />
-        </div>
-        <div className="h-7 w-px bg-slate-200 hidden md:block"></div>
-        <h2 className="text-sm sm:text-base font-semibold text-slate-800 leading-tight hidden md:block">
-          Intelligent Land Record Digitization & Validation
-        </h2>
+      {/* Top Left Brand */}
+      <div className="flex items-center">
+        <img 
+          src="/landsure-logo-transparent.png" 
+          alt="LandSure Cadastral Intelligence" 
+          className="h-12 w-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
+        />
       </div>
 
       {/* Right Header: Status, Date & User Profile */}
