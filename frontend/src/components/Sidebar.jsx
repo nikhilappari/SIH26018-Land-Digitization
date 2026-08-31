@@ -29,16 +29,8 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen flex flex-col justify-between border-r border-slate-800">
+    <aside className="w-64 bg-slate-900 text-white min-h-[calc(100vh-4rem)] flex flex-col justify-between border-r border-slate-800 shrink-0">
       <div>
-        {/* Header Branding */}
-        <div className="px-5 py-6 border-b border-slate-800 bg-slate-950/90 flex items-center justify-center">
-          <img 
-            src="/landsure-logo-dark.png" 
-            alt="LandSure Cadastral Intelligence" 
-            className="w-full h-auto max-h-12 object-contain" 
-          />
-        </div>
 
         {/* User profile brief */}
         {user && (
