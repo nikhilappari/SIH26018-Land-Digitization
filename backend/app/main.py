@@ -62,6 +62,18 @@ app = FastAPI(
     version="2.0.0"
 )
 
+import traceback
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    err_tb = traceback.format_exc()
+    print("GLOBAL UNCAUGHT EXCEPTION:", err_tb)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error_message": str(exc), "traceback": err_tb}
+    )
+
 # Robust Production CORS Configuration for Vercel, Render & Localhost
 app.add_middleware(
     CORSMiddleware,
