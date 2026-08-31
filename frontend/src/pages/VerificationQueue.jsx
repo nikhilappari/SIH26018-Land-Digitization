@@ -15,7 +15,7 @@ import {
   Sparkles,
   ExternalLink
 } from 'lucide-react';
-import { verificationService } from '../services/api';
+import { verificationService, documentService } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
 
 const VerificationQueue = () => {
@@ -277,7 +277,7 @@ const VerificationQueue = () => {
                           <ArrowRight size={12} />
                         </button>
                         <button
-                          onClick={() => window.open(`/api/documents/${docId}/certificate`, '_blank')}
+                          onClick={() => window.open(documentService.getCertificateUrl(docId), '_blank')}
                           className="p-1.5 hover:bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg transition cursor-pointer"
                           title="Download Land Certificate"
                         >
