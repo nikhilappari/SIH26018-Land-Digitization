@@ -1,7 +1,7 @@
-﻿FROM python:3.11-slim
+FROM python:3.11-slim
 
-# Install system dependencies for PostgreSQL, OpenCV, PDF handling, and full Multilingual Indic OCR
-RUN apt-get update && apt-get install -y \
+# Install system dependencies for PostgreSQL, OpenCV, PDF handling, and Multilingual Indic OCR
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     tesseract-ocr \
@@ -10,14 +10,12 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr-hin \
     tesseract-ocr-tam \
     tesseract-ocr-kan \
-    tesseract-ocr-mal \
     tesseract-ocr-mar \
-    tesseract-ocr-ben \
     tesseract-ocr-guj \
+    tesseract-ocr-ben \
     tesseract-ocr-ori \
-    tesseract-ocr-pan \
     poppler-utils \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -35,4 +33,5 @@ RUN mkdir -p /app/uploads /app/preprocessed
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENV PORT=8000
+CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
