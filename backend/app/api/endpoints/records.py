@@ -228,7 +228,7 @@ def export_record_pdf(
         headers={"Content-Disposition": f"attachment; filename=LandCertificate_DIG-LR-{record.id}.pdf"}
     )
 
-@router.get("/{record_id}", response_model=LandRecordDetailResponse)
+@router.get("/{record_id}")
 def get_record_details(
     record_id: int, 
     db: Session = Depends(get_db),
@@ -236,7 +236,55 @@ def get_record_details(
 ):
     rec = db.query(LandRecord).filter(LandRecord.id == record_id).first()
     if not rec:
+        rec = db.query(LandRecord).filter(LandRecord.document_id == record_id).first()
+    if not rec:
         raise HTTPException(status_code=404, detail="Land record not found")
         
-    doc = db.query(Document).filter(Document.id == rec.document_id).first()
-    return {"record": rec, "document": doc}
+    doc = db.query(Document).filter(Document.id == rec.document_id).first() if rec.document_id else None
+    doc_dict = None
+    if doc:
+        doc_dict = {
+            "id": doc.id,
+            "original_filename": doc.original_filename,
+            "file_path": doc.file_path,
+            "preprocessed_path": doc.preprocessed_path,
+            "doc_type": doc.doc_type,
+            "language": doc.language,
+            "format_type": doc.format_type,
+            "status": doc.status,
+            "confidence_score": doc.confidence_score,
+            "processing_stage": doc.processing_stage,
+            "created_at": doc.created_at.isoformat() if doc.created_at else None
+        }
+    
+    rec_dict = {
+        "id": rec.id,
+        "document_id": rec.document_id,
+        "owner_name": rec.owner_name,
+        "father_name": getattr(rec, "father_name", None),
+        "survey_number": rec.survey_number or rec.khasra_number,
+        "khasra_number": rec.khasra_number or rec.survey_number,
+        "khata_number": rec.khata_number,
+        "plot_number": rec.plot_number,
+        "area": rec.area,
+        "area_unit": rec.area_unit,
+        "village": rec.village,
+        "tehsil_mandal": rec.tehsil_mandal,
+        "district": rec.district,
+        "land_classification": rec.land_classification,
+        "ownership_type": rec.ownership_type,
+        "mutation_number": rec.mutation_number,
+        "registration_number": rec.registration_number,
+        "registration_date": rec.registration_date,
+        "regional_values": rec.regional_values or {},
+        "confidence_scores": rec.confidence_scores or {},
+        "verification_status": rec.verification_status,
+        "created_at": rec.created_at.isoformat() if rec.created_at else None,
+        "updated_at": rec.updated_at.isoformat() if rec.updated_at else None,
+    }
+    
+    # Attach nested for full backwards compatibility
+    response_payload = dict(rec_dict)
+    response_payload["record"] = rec_dict
+    response_payload["document"] = doc_dict
+    return response_payload

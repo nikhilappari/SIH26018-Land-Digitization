@@ -151,6 +151,11 @@ export const recordService = {
     const response = await api.get(`/api/records/${id}`);
     return response.data;
   },
+
+  getRecordDetails: async (id) => {
+    const response = await api.get(`/api/records/${id}`);
+    return response.data;
+  },
   
   getExportCSVUrl: () => {
     return '/api/records/export/csv';

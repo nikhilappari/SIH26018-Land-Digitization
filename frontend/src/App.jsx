@@ -125,6 +125,16 @@ function App() {
           }
         />
         <Route
+          path="/records/:id"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <RecordDetails />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/map"
           element={
             <ProtectedRoute>
