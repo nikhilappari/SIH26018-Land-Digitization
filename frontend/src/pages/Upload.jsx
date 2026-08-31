@@ -107,7 +107,7 @@ const Upload = () => {
             Upload Land Registry Document
           </h2>
           <p className="text-xs text-slate-500 font-medium">
-            Upload historical registers, scanned legacy deeds, Patta/Adangal records, or cadastral maps in Indic languages (Telugu, Tamil, Hindi, English).
+            Upload scanned land deeds or registry records for automated cadastral extraction and verification.
           </p>
         </div>
 
