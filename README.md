@@ -24,15 +24,6 @@
 
 ---
 
-## 🔑 Demo Access Credentials
-
-| Role | Username | Password | Access Scope |
-| :--- | :--- | :--- | :--- |
-| **Revenue Officer** | `revenue_officer` | `sih2026password` | Document Upload, Verification Queue, Field Editing, Certificate Issuance |
-| **System Administrator** | `admin` | `sih2026admin` | Full Cadastral Audit Logs, System Diagnostics, Global Registry Management |
-
----
-
 ## 📌 Executive Summary & Problem Context
 
 Historical and legacy Indian land records (Pattas, ROR-1B / Adangal extracts, Sale Deeds, Mutation registers, and Cadastral village survey sheets) are frequently preserved as physical paper archives or degraded scanned images in various **Indic languages** (Telugu, Tamil, Hindi, Kannada, Marathi, Gujarati, Odia, English).
