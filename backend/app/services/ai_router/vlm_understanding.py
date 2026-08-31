@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import logging
 from typing import Dict, Any, Optional
@@ -26,6 +26,8 @@ CANONICAL_19_FIELDS = [
     "land_classification",
     "ownership_type",
     "mutation_number",
+    "mutation_order_date",
+    "entry_date",
     "registration_number",
     "registration_date"
 ]

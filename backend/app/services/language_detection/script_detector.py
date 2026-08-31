@@ -1,4 +1,4 @@
-﻿import re
+import re
 import logging
 from typing import Dict, Any, List
 
@@ -54,6 +54,15 @@ def detect_language(ocr_text: str, filename: str = "") -> str:
             if any(k in text for k in marathi_keywords):
                 return "Marathi"
         return max_lang
+
+    # Check for regional cadastral keywords in mixed text
+    text_lower = text.lower()
+    telugu_cadastral_markers = [
+        "rajahmundry", "godavari", "andhra", "adangal", "pahani", "pattadar", "krishnapuram",
+        "pedavenkatapuram", "pedapadu", "e.g.dt", "w.g.dt"
+    ]
+    if any(k in text_lower for k in telugu_cadastral_markers):
+        return "Telugu"
 
     return "English"
 

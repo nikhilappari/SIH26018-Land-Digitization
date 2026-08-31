@@ -1,4 +1,4 @@
-﻿import re
+import re
 from typing import List, Dict, Any
 from sqlalchemy.orm import Session
 from app.models.land_records import LandRecord
@@ -27,7 +27,11 @@ def validate_record(db: Session, record_data: Dict[str, Any], document_id: int) 
     ]
 
     for field_key, field_label in required_fields:
-        val = record_data.get(field_key)
+        if field_key == "tehsil_mandal":
+            val = record_data.get("tehsil_mandal") or record_data.get("mandal") or record_data.get("tehsil")
+        else:
+            val = record_data.get(field_key)
+            
         if val is None or (isinstance(val, str) and not val.strip()):
             anomalies.append({
                 "document_id": document_id,

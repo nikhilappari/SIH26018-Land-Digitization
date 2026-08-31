@@ -1,4 +1,4 @@
-﻿import os
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -11,7 +11,7 @@ from app.api import api_router
 init_db()
 
 app = FastAPI(
-    title="BhoomiSetu AI - Land Record Digitization & Validation API",
+    title="LandSure AI - Land Record Digitization & Validation API",
     description="SIH26018 Production-Ready Multilingual Land Records Digitization Backend Services",
     version="2.0.0"
 )

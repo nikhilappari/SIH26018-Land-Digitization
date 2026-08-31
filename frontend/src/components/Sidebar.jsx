@@ -33,12 +33,14 @@ const Sidebar = () => {
       <div>
         {/* Header Branding */}
         <div className="p-6 border-b border-slate-800 bg-slate-950 flex items-center gap-3">
-          <div className="p-2 bg-amber-500 rounded text-slate-950">
-            <Landmark size={24} />
+          <div className="p-2 bg-emerald-500 rounded-xl text-slate-950 shadow-sm">
+            <Landmark size={22} />
           </div>
           <div>
-            <h1 className="font-bold text-sm leading-tight text-amber-500">BHUMI-DIGIT</h1>
-            <p className="text-[10px] text-slate-400">National Land Records</p>
+            <h1 className="font-bold text-base leading-tight text-white tracking-wide flex items-center">
+              Land<span className="text-emerald-400">Sure</span>
+            </h1>
+            <p className="text-[10px] text-slate-400 font-medium">Cadastral Intelligence</p>
           </div>
         </div>
 

@@ -14,12 +14,11 @@ const Navbar = () => {
       {/* Title */}
       <div className="flex items-center gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-800 leading-tight">
-            Intelligent Land Record Digitization & Validation System
+          <h2 className="text-lg font-bold text-slate-900 leading-tight flex items-center gap-2">
+            <span>Land<span className="text-emerald-600">Sure</span></span>
+            <span className="text-slate-300 font-normal">|</span>
+            <span className="text-slate-800 text-sm font-semibold">Intelligent Land Record Digitization & Validation</span>
           </h2>
-          <p className="text-[10px] text-gray-500 font-medium">
-            Smart India Hackathon 2026 • AI-Powered Revenue Operations
-          </p>
         </div>
       </div>
 

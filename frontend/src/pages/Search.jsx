@@ -17,15 +17,10 @@ const Search = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Filter states
+  // Filter states (only Name and Survey Number)
   const [filters, setFilters] = useState({
     owner_name: "",
-    survey_number: "",
-    khata_number: "",
-    village: "",
-    tehsil_mandal: "",
-    district: "",
-    verification_status: ""
+    survey_number: ""
   });
 
   const handleInputChange = (field, value) => {
@@ -62,12 +57,7 @@ const Search = () => {
   const handleReset = () => {
     const defaultFilters = {
       owner_name: "",
-      survey_number: "",
-      khata_number: "",
-      village: "",
-      tehsil_mandal: "",
-      district: "",
-      verification_status: ""
+      survey_number: ""
     };
     setFilters(defaultFilters);
     fetchResults(defaultFilters);
@@ -79,135 +69,77 @@ const Search = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Title & Export bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Database className="text-govteal-700" />
+          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <Database className="text-emerald-600" size={24} />
             Registry Search Database
           </h1>
-          <p className="text-xs text-gray-500 font-semibold mt-1">
-            Query published and verified land record digitizations. Apply filters to narrow results.
+          <p className="text-xs text-slate-500 font-medium mt-1">
+            Query digitized and verified land records by Pattadar Name or Survey / Khasra Number.
           </p>
         </div>
         
         <button
           onClick={handleExportCSV}
-          className="bg-white hover:bg-slate-50 text-slate-800 font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all border border-slate-200"
+          className="bg-white hover:bg-slate-50 text-slate-800 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-2 shadow-sm transition border border-slate-200 cursor-pointer self-start sm:self-auto"
         >
-          <Download size={16} />
+          <Download size={15} />
           Export Registry (CSV)
         </button>
       </div>
 
       {/* Filter panel */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <form onSubmit={handleSearchSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <form onSubmit={handleSearchSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
             {/* Owner Name */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Owner Name</label>
+            <div className="md:col-span-5">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+                Pattadar / Owner Name
+              </label>
               <input
                 type="text"
                 value={filters.owner_name}
                 onChange={(e) => handleInputChange("owner_name", e.target.value)}
-                placeholder="e.g. Kondru Ramu"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
+                placeholder="e.g. Ramasamy Velan / Vemula Suresh Kumar / Mohan Lal"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-1 focus:ring-slate-900 outline-none text-xs font-semibold text-slate-800"
               />
             </div>
 
             {/* Survey Number */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Survey Number</label>
+            <div className="md:col-span-4">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+                Survey / Khasra Number
+              </label>
               <input
                 type="text"
                 value={filters.survey_number}
                 onChange={(e) => handleInputChange("survey_number", e.target.value)}
-                placeholder="e.g. 145/3A"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
-              />
-            </div>
-
-            {/* Khata Number */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Khata Number</label>
-              <input
-                type="text"
-                value={filters.khata_number}
-                onChange={(e) => handleInputChange("khata_number", e.target.value)}
-                placeholder="e.g. 412"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
-              />
-            </div>
-
-            {/* Verification Status */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Verification Status</label>
-              <select
-                value={filters.verification_status}
-                onChange={(e) => handleInputChange("verification_status", e.target.value)}
-                className="w-full px-2 py-2 bg-white rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
-              >
-                <option value="">All Statuses</option>
-                <option value="Verified">Verified</option>
-                <option value="Pending">Pending</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
-
-            {/* District */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">District</label>
-              <input
-                type="text"
-                value={filters.district}
-                onChange={(e) => handleInputChange("district", e.target.value)}
-                placeholder="e.g. West Godavari"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
-              />
-            </div>
-
-            {/* Tehsil/Mandal */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tehsil / Mandal</label>
-              <input
-                type="text"
-                value={filters.tehsil_mandal}
-                onChange={(e) => handleInputChange("tehsil_mandal", e.target.value)}
-                placeholder="e.g. Pedapadu"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
-              />
-            </div>
-
-            {/* Village */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Village</label>
-              <input
-                type="text"
-                value={filters.village}
-                onChange={(e) => handleInputChange("village", e.target.value)}
-                placeholder="e.g. Krishnapuram"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 outline-none text-xs font-semibold text-slate-800"
+                placeholder="e.g. 123/2B / 145/3A / 145/1"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-1 focus:ring-slate-900 outline-none text-xs font-semibold text-slate-800"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex items-end gap-2">
+            <div className="md:col-span-3 flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleReset}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-slate-800 font-bold py-2 px-3 rounded-lg text-xs border border-gray-200 flex items-center justify-center gap-1.5 transition-all"
+                className="flex-1 bg-white hover:bg-slate-100 text-slate-700 font-bold py-2.5 px-3 rounded-xl text-xs border border-slate-300 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm"
               >
-                <RefreshCw size={14} />
-                Reset
+                <RefreshCw size={13} />
+                <span>Reset</span>
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-slate-900 hover:bg-slate-950 text-amber-500 font-bold py-2 px-3 rounded-lg text-xs border border-slate-800 hover:border-amber-500 flex items-center justify-center gap-1.5 shadow transition-all"
+                disabled={loading}
+                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-sm cursor-pointer"
               >
                 <SearchIcon size={14} />
-                Search
+                <span>Search</span>
               </button>
             </div>
           </div>

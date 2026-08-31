@@ -10,6 +10,7 @@ class LandRecord(Base):
     
     # Core Land Record Fields
     owner_name = Column(String, nullable=True)
+    father_name = Column(String, nullable=True)
     survey_number = Column(String, nullable=True)
     khasra_number = Column(String, nullable=True)
     khata_number = Column(String, nullable=True)
@@ -28,6 +29,8 @@ class LandRecord(Base):
     
     # Mutation & Registration info
     mutation_number = Column(String, nullable=True)
+    mutation_order_date = Column(String, nullable=True)
+    entry_date = Column(String, nullable=True)
     registration_number = Column(String, nullable=True)
     registration_date = Column(String, nullable=True)
     

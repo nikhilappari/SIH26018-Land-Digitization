@@ -1,9 +1,10 @@
-﻿from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional, Dict, Any
 
 class LandRecordBase(BaseModel):
     owner_name: Optional[str] = None
+    father_name: Optional[str] = None
     survey_number: Optional[str] = None
     khasra_number: Optional[str] = None
     khata_number: Optional[str] = None
@@ -16,6 +17,8 @@ class LandRecordBase(BaseModel):
     land_classification: Optional[str] = None
     ownership_type: Optional[str] = None
     mutation_number: Optional[str] = None
+    mutation_order_date: Optional[str] = None
+    entry_date: Optional[str] = None
     registration_number: Optional[str] = None
     registration_date: Optional[str] = None
     regional_values: Optional[Dict[str, Any]] = None

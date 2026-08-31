@@ -46,12 +46,12 @@ const Login = () => {
         
         {/* Portal Banner Header */}
         <div className="bg-slate-950 p-8 text-center border-b border-slate-800">
-          <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto text-slate-950 shadow-md mb-4">
+          <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto text-slate-950 shadow-md mb-4">
             <Landmark size={36} />
           </div>
-          <h1 className="text-xl font-bold text-amber-500 tracking-wide">BHUMI-DIGIT PORTAL</h1>
+          <h1 className="text-2xl font-bold text-white tracking-wide">Land<span className="text-emerald-400">Sure</span> Portal</h1>
           <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">
-            National Land Records Digitization
+            National Land Records Digitization Platform
           </p>
         </div>
 

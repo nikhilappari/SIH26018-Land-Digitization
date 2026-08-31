@@ -126,6 +126,18 @@ export const documentService = {
   getExtractionDebug: async (id) => {
     const response = await api.get(`/api/documents/${id}/extraction-debug`);
     return response.data;
+  },
+
+  getFileUrl: (id) => {
+    return `/api/documents/${id}/file`;
+  },
+
+  getPreprocessedFileUrl: (id) => {
+    return `/api/documents/${id}/preprocessed-file`;
+  },
+
+  getCertificateUrl: (id) => {
+    return `/api/documents/${id}/certificate`;
   }
 };
 
@@ -146,6 +158,10 @@ export const recordService = {
   
   getExportPDFUrl: (id) => {
     return `/api/records/export/pdf/${id}`;
+  },
+
+  downloadCertificate: (id) => {
+    window.open(`/api/records/export/pdf/${id}`, '_blank');
   }
 };
 
@@ -157,6 +173,15 @@ export const verificationService = {
   
   verifyRecord: async (documentId, fields, approved = true) => {
     const response = await api.put(`/api/verification/${documentId}/verify`, fields, {
+      params: { approved }
+    });
+    return response.data;
+  },
+
+  submitReview: async (payload) => {
+    const { document_id, decision, reviewed_fields } = payload;
+    const approved = decision === 'Approved';
+    const response = await api.put(`/api/verification/${document_id}/verify`, reviewed_fields, {
       params: { approved }
     });
     return response.data;

@@ -87,6 +87,14 @@ function App() {
           }
         />
         <Route
+          path="/queue"
+          element={
+            <ProtectedRoute>
+              <Navigate to="/verification" replace />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/verify/:id"
           element={
             <ProtectedRoute>

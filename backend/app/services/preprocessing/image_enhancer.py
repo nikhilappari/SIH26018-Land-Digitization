@@ -1,4 +1,4 @@
-﻿import os
+import os
 import cv2
 import numpy as np
 from PIL import Image
@@ -69,19 +69,30 @@ def enhance_document_image(input_path: str, output_path: Optional[str] = None) -
             pil_img = Image.open(input_path)
             img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
-        # 1. Skew correction
+        # 1. Skew correction & Deskewing
         skew_angle = detect_skew(img)
         deskewed = rotate_image(img, skew_angle)
 
-        # 2. Convert to Grayscale
+        # 2. High-resolution Grayscale conversion
         gray = cv2.cvtColor(deskewed, cv2.COLOR_BGR2GRAY)
 
-        # 3. Photocopy denoising
-        cleaned = denoise_photocopy(gray)
+        # 3. Background Illumination Normalization & Whitening
+        # Removes yellowed background, shadows, and aging paper stains
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 25))
+        bg = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
+        norm = cv2.divide(gray, bg, scale=255.0)
+        norm = np.clip(norm, 0, 255).astype(np.uint8)
 
-        # 4. Contrast Enhancement (CLAHE)
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        enhanced = clahe.apply(cleaned)
+        # 4. Adaptive Contrast Enhancement (CLAHE)
+        clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+        contrast_enhanced = clahe.apply(norm)
+
+        # 5. Denoise photocopy speckles & artifacts while preserving text stroke edges
+        denoised = cv2.medianBlur(contrast_enhanced, 3)
+
+        # 6. Unsharp Masking for ultra-crisp, bold, high-contrast text legibility
+        gaussian = cv2.GaussianBlur(denoised, (0, 0), 2.0)
+        enhanced = cv2.addWeighted(denoised, 1.5, gaussian, -0.5, 0)
 
         cv2.imwrite(output_path, enhanced)
 

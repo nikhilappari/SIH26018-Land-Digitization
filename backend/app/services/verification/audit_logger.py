@@ -1,4 +1,4 @@
-﻿import datetime
+import datetime
 import json
 import logging
 from sqlalchemy.orm import Session
@@ -8,33 +8,42 @@ logger = logging.getLogger(__name__)
 
 def log_verification_action(
     db: Session,
-    document_id: int,
-    user_id: int,
+    land_record_id: int,
+    officer_id: int,
     action: str,
     previous_values: dict = None,
     new_values: dict = None,
     comments: str = ""
-) -> AuditLog:
+):
     """
-    Creates an immutable audit log entry for human verification reviews.
+    Creates immutable audit log entries for human verification decisions.
     """
     try:
-        prev_json = json.dumps(previous_values or {}, default=str)
-        new_json = json.dumps(new_values or {}, default=str)
-        
-        audit_entry = AuditLog(
-            document_id=document_id,
-            user_id=user_id,
-            action=action,
-            previous_values=prev_json,
-            new_values=new_json,
-            comments=comments,
+        # Log action/status
+        entry = AuditLog(
+            land_record_id=land_record_id,
+            changed_by_user_id=officer_id,
+            field_name="verification_status",
+            old_value=str(previous_values.get("verification_status") if previous_values else "Pending"),
+            new_value=action,
             timestamp=datetime.datetime.utcnow()
         )
-        db.add(audit_entry)
+        db.add(entry)
+
+        # Log any changed fields
+        if previous_values and new_values:
+            for k, new_v in new_values.items():
+                old_v = previous_values.get(k)
+                if str(old_v) != str(new_v):
+                    db.add(AuditLog(
+                        land_record_id=land_record_id,
+                        changed_by_user_id=officer_id,
+                        field_name=k,
+                        old_value=str(old_v),
+                        new_value=str(new_v),
+                        timestamp=datetime.datetime.utcnow()
+                    ))
+
         db.commit()
-        db.refresh(audit_entry)
-        return audit_entry
     except Exception as e:
-        logger.error(f"Audit log writing failed for document #{document_id}: {e}")
-        return None
+        logger.error(f"Audit log writing failed for record #{land_record_id}: {e}")
