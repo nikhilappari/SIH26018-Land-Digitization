@@ -111,7 +111,7 @@ const Dashboard = () => {
           <TrendingUp size={240} />
         </div>
         <div className="max-w-2xl relative z-10">
-          <h1 className="text-2xl font-bold text-amber-500 mb-2">Bhumi-Digit AI Management Console</h1>
+          <h1 className="text-2xl font-bold text-emerald-400 mb-2">LandSure AI Management Console</h1>
           <p className="text-sm text-slate-300 leading-relaxed">
             Monitor, validate, and verify historical Indian land record digitizations. 
             All extracted structures are audited, cross-referenced, and checked for anomalies.
@@ -253,7 +253,7 @@ const Dashboard = () => {
           </div>
           <div className="p-4 bg-slate-50 border-t border-gray-100 text-center rounded-b-xl">
             <p className="text-xs text-slate-500 font-semibold">
-              Bhumi-Digit AI performs validation automatically. Records below 80% confidence or with warnings require verification.
+              LandSure AI performs validation automatically. Records below 80% confidence or with warnings require verification.
             </p>
           </div>
         </div>

@@ -32,27 +32,7 @@ const Sidebar = () => {
 
   return (
     <aside className="w-64 bg-white min-h-[calc(100vh-4rem)] flex flex-col justify-between border-r border-slate-200/90 shadow-xs shrink-0 select-none">
-      <div className="p-4 space-y-5">
-        {/* User profile brief card */}
-        {user && (
-          <div className="p-3.5 bg-slate-50/80 hover:bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center gap-3 transition">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
-              {user.username ? user.username.substring(0, 2).toUpperCase() : 'RO'}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs font-bold text-slate-900 truncate">
-                  {user.username || 'revenue_officer'}
-                </p>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              </div>
-              <p className="text-[10px] text-slate-500 font-semibold truncate capitalize mt-0.5">
-                {user.role || 'Revenue Officer'} • Official
-              </p>
-            </div>
-          </div>
-        )}
-
+      <div className="p-4 space-y-4">
         {/* Navigation Menu */}
         <div>
           <div className="px-3 mb-2 flex items-center justify-between">
