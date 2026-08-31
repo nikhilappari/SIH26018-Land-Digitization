@@ -132,8 +132,20 @@ const Dashboard = () => {
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-950 p-8 rounded-2xl text-white shadow-md border border-slate-700/80 relative overflow-hidden">
-        <div className="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-12 -translate-y-6">
-          <TrendingUp size={240} />
+        {/* Layered Decorative 3-Arrow Growth Wave */}
+        <div className="absolute right-0 top-0 pointer-events-none h-full w-96 overflow-hidden">
+          {/* Arrow 1 (Back Layer - Ambient) */}
+          <div className="absolute right-0 top-0 transform translate-x-24 -translate-y-10 text-emerald-400 opacity-[0.06]">
+            <TrendingUp size={280} />
+          </div>
+          {/* Arrow 2 (Middle Layer) */}
+          <div className="absolute right-0 top-0 transform translate-x-12 -translate-y-4 text-emerald-400 opacity-[0.12]">
+            <TrendingUp size={245} />
+          </div>
+          {/* Arrow 3 (Front Layer - Crisp) */}
+          <div className="absolute right-0 top-0 transform -translate-x-1 translate-y-2 text-emerald-400 opacity-[0.22]">
+            <TrendingUp size={210} />
+          </div>
         </div>
         <div className="max-w-3xl relative z-10 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
