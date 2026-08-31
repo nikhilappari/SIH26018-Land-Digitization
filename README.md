@@ -79,16 +79,14 @@ flowchart TD
 
 ---
 
-## 👥 Development Team
+## 👥 Team
 
-| Name | Role & Specialization | Profiles |
-| :--- | :--- | :--- |
-| **Nikhil Appari** | **Team Lead & Full-Stack Architect**<br/>FastAPI Backend, React Frontend, Authentication, Cloud Deployments | [![GitHub](https://img.shields.io/badge/GitHub-nikhilappari-181717?style=flat-square&logo=github)](https://github.com/nikhilappari/) [![LinkedIn](https://img.shields.io/badge/LinkedIn-Nikhil_Appari-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nikhil-appari-365810309/) |
-| **Hemanth Birda** | **AI / ML & Indic OCR Lead**<br/>Multilingual Neural Character Recognition & Handwriting Extraction | — |
-| **Sai Naidu Yalla** | **Computer Vision & Preprocessing Engineer**<br/>CLAHE Enhancement, Deskewing, Noise Filtering & Boundary Analysis | — |
-| **Poojitha Bellam** | **Backend & Cadastral Database Architect**<br/>SQLAlchemy Data Models, Registry Query Engine & PDF Certificate Generation | — |
-| **Kalyani Bondi** | **Frontend & UI/UX Specialist**<br/>Responsive Design, Verification Workspace & Modern Glassmorphic Interfaces | — |
-| **Madhavi Nakka** | **Security & GIS QA Engineer**<br/>Cadastral Anomaly Rules, Audit Trail Integrity & Cross-Validation Logic | — |
+- **Nikhil Appari** (Team Lead)
+- **Hemanth Birda**
+- **Sai Naidu Yalla**
+- **Poojitha Bellam**
+- **Kalyani Bondi**
+- **Madhavi Nakka**
 
 ---
 
