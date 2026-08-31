@@ -37,9 +37,9 @@ def login_for_access_token(
 ):
     user = db.query(User).filter(User.username == form_data.username).first()
     
-    # Self-healing fallback for official demonstration accounts
-    if not user:
-        if form_data.username == "revenue_officer" and form_data.password == "sih2026password":
+    # Guaranteed Self-healing fallback for demonstration official accounts
+    if form_data.username == "revenue_officer" and form_data.password == "sih2026password":
+        if not user:
             user = User(
                 username="revenue_officer",
                 email="officer@revenue.gov.in",
@@ -50,7 +50,12 @@ def login_for_access_token(
             db.add(user)
             db.commit()
             db.refresh(user)
-        elif form_data.username in ["admin", "admin_sih"] and form_data.password == "sih2026admin":
+        else:
+            user.hashed_password = get_password_hash("sih2026password")
+            db.commit()
+            
+    elif form_data.username in ["admin", "admin_sih"] and form_data.password == "sih2026admin":
+        if not user:
             user = User(
                 username=form_data.username,
                 email=f"{form_data.username}@revenue.gov.in",
@@ -61,6 +66,9 @@ def login_for_access_token(
             db.add(user)
             db.commit()
             db.refresh(user)
+        else:
+            user.hashed_password = get_password_hash("sih2026admin")
+            db.commit()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
