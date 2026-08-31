@@ -42,7 +42,6 @@ const Sidebar = () => {
     { to: '/upload', label: 'Upload Document', icon: UploadCloud, tooltip: 'Upload & Process Deed' },
     { to: '/verification', label: 'Review Queue', icon: ShieldCheck, tooltip: 'Review & Verify Records' },
     { to: '/search', label: 'Registry Search', icon: Search, tooltip: 'Search Land Records' },
-    { to: '/map', label: 'Cadastral Maps', icon: Map, tooltip: 'Spatial & Plot GIS Map' },
   ];
 
   return (
