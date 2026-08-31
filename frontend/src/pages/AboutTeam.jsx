@@ -19,45 +19,71 @@ import {
 } from 'lucide-react';
 
 const AboutTeam = () => {
-  // Developer Team Members
+  // Developer Team Members (6 Members including Team Lead)
   const teamMembers = [
     {
-      name: "Lead Developer",
-      role: "Team Lead & Full-Stack Architect",
-      focus: "End-to-end Architecture, Indic OCR Pipeline & Cryptographic Verification",
-      avatar: "LD",
+      name: "Team Lead & Full-Stack Architect",
+      role: "Project Lead",
+      isLead: true,
+      focus: "End-to-end Platform Architecture, Indic OCR Pipeline & Cryptographic Verification",
+      avatar: "TL",
       color: "bg-emerald-600",
-      skills: ["FastAPI", "React", "Indic OCR", "Python", "System Design"],
+      skills: ["FastAPI", "React 18", "System Design", "Python", "DILRMP"],
       github: "https://github.com",
       linkedin: "https://linkedin.com"
     },
     {
-      name: "AI / ML Engineer",
-      role: "Computer Vision & OCR Specialist",
+      name: "AI / ML & Indic OCR Engineer",
+      role: "Machine Learning Lead",
+      isLead: false,
       focus: "Multilingual Indic Script Recognition, Bounding Box Alignment & LLM Parsing",
       avatar: "AI",
       color: "bg-indigo-600",
-      skills: ["PyTorch", "OpenCV", "Tesseract", "IndicNLP", "Prompt Eng"],
+      skills: ["PyTorch", "IndicNLP", "Gemini Vision", "Tesseract", "HuggingFace"],
       github: "https://github.com",
       linkedin: "https://linkedin.com"
     },
     {
-      name: "Backend Engineer",
-      role: "Database & Revenue Operations",
-      focus: "Cadastral Rule Engine, Anomaly Detection & Immutable Audit Ledger",
+      name: "Computer Vision Engineer",
+      role: "Image Preprocessing & Vision Core",
+      isLead: false,
+      focus: "Adaptive Document Thresholding, Deskewing, Noise Reduction & dHash Matching",
+      avatar: "CV",
+      color: "bg-purple-600",
+      skills: ["OpenCV", "Perceptual Hashing", "Scikit-Image", "NumPy", "Pillow"],
+      github: "https://github.com",
+      linkedin: "https://linkedin.com"
+    },
+    {
+      name: "Backend & Database Architect",
+      role: "Backend & API Engineer",
+      isLead: false,
+      focus: "Cadastral Rule Engine, Anomaly Detection, SQL Schemas & PDF Certificate Generator",
       avatar: "BE",
       color: "bg-blue-600",
-      skills: ["FastAPI", "SQLAlchemy", "SQLite", "ReportLab", "REST APIs"],
+      skills: ["FastAPI", "SQLAlchemy", "SQLite/Postgres", "ReportLab", "REST APIs"],
       github: "https://github.com",
       linkedin: "https://linkedin.com"
     },
     {
-      name: "Frontend Specialist",
-      role: "UI/UX & Platform Designer",
-      focus: "Responsive Design, Interactive Verification Workspace & Tailwind System",
-      avatar: "UI",
+      name: "Frontend & UI/UX Specialist",
+      role: "Frontend Engineer",
+      isLead: false,
+      focus: "Interactive Verification Workspace, Responsive Dashboards & Component Library",
+      avatar: "FE",
       color: "bg-amber-600",
-      skills: ["React 18", "Vite", "TailwindCSS", "Lucide", "Generative UI"],
+      skills: ["React 18", "Vite", "Tailwind CSS", "Lucide React", "UI/UX"],
+      github: "https://github.com",
+      linkedin: "https://linkedin.com"
+    },
+    {
+      name: "Security & GIS QA Engineer",
+      role: "Security & System Validation",
+      isLead: false,
+      focus: "SHA-256 Ledger Integrity, JWT RBAC Authentication & Spatial Map Integration",
+      avatar: "SE",
+      color: "bg-rose-600",
+      skills: ["Cryptographic Hashing", "JWT Auth", "GIS Mapping", "Unit Testing", "CI/CD"],
       github: "https://github.com",
       linkedin: "https://linkedin.com"
     }
@@ -161,16 +187,24 @@ const AboutTeam = () => {
             </p>
           </div>
           <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-            4 Core Members
+            6 Team Members (Team Lead + 5)
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {teamMembers.map((member, index) => (
             <div 
               key={index}
-              className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition group space-y-5"
+              className={`bg-white p-6 rounded-2xl border ${
+                member.isLead ? 'border-emerald-300 shadow-sm ring-1 ring-emerald-100' : 'border-slate-200/90 shadow-xs'
+              } flex flex-col justify-between hover:shadow-md transition group space-y-5 relative`}
             >
+              {member.isLead && (
+                <div className="absolute top-4 right-4 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+                  ★ Team Lead
+                </div>
+              )}
+
               <div className="space-y-4">
                 {/* Avatar & Header */}
                 <div className="flex items-center gap-3.5">
