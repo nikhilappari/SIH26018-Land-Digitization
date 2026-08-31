@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 // Create Axios Instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  baseURL: BACKEND_URL,
   timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
@@ -23,15 +25,17 @@ api.interceptors.request.use(
   }
 );
 
-// Response Interceptor: Route back to login on 401 Unauthorized
+// Response Interceptor: Handle Unauthorized errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
     if (error.response && error.response.status === 401) {
+      // Clear token and redirect to login if unauthorized
       localStorage.removeItem('sih_auth_token');
       localStorage.removeItem('sih_auth_user');
-      // If we are not already on the login page, redirect
-      if (!window.location.pathname.endsWith('/login')) {
+      if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
     }
@@ -39,14 +43,12 @@ api.interceptors.response.use(
   }
 );
 
-// API Service Call wrappers
 export const authService = {
   login: async (username, password) => {
     const params = new URLSearchParams();
     params.append('username', username);
     params.append('password', password);
     
-    // Auth login takes Form encoded request
     const response = await api.post('/api/auth/login', params, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -129,15 +131,15 @@ export const documentService = {
   },
 
   getFileUrl: (id) => {
-    return `/api/documents/${id}/file`;
+    return `${BACKEND_URL}/api/documents/${id}/file`;
   },
 
   getPreprocessedFileUrl: (id) => {
-    return `/api/documents/${id}/preprocessed-file`;
+    return `${BACKEND_URL}/api/documents/${id}/preprocessed-file`;
   },
 
   getCertificateUrl: (id) => {
-    return `/api/documents/${id}/certificate`;
+    return `${BACKEND_URL}/api/documents/${id}/certificate`;
   }
 };
 
@@ -158,15 +160,15 @@ export const recordService = {
   },
   
   getExportCSVUrl: () => {
-    return '/api/records/export/csv';
+    return `${BACKEND_URL}/api/records/export/csv`;
   },
   
   getExportPDFUrl: (id) => {
-    return `/api/records/export/pdf/${id}`;
+    return `${BACKEND_URL}/api/records/export/pdf/${id}`;
   },
 
   downloadCertificate: (id) => {
-    window.open(`/api/records/export/pdf/${id}`, '_blank');
+    window.open(`${BACKEND_URL}/api/records/export/pdf/${id}`, '_blank');
   }
 };
 
