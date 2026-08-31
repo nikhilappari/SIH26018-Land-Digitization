@@ -46,13 +46,9 @@ const Login = () => {
         
         {/* Portal Banner Header */}
         <div className="bg-slate-950 p-8 text-center border-b border-slate-800">
-          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-md mb-4 p-2 overflow-hidden border border-slate-800">
-            <img src="/landsure-logo.png" alt="LandSure Logo" className="w-full h-full object-contain" />
+          <div className="w-64 max-w-full bg-white rounded-2xl flex items-center justify-center mx-auto shadow-md mb-2 py-3 px-4 overflow-hidden border border-slate-800">
+            <img src="/landsure-logo.png" alt="LandSure Cadastral Intelligence" className="w-full h-12 object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-wide">Land<span className="text-emerald-400">Sure</span> Portal</h1>
-          <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">
-            Cadastral Intelligence Platform
-          </p>
         </div>
 
         <div className="p-8">
